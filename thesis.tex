@@ -100,7 +100,6 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{alltt}
-%\usepackage{graph}
 \usepackage{times}
 \usepackage{fancyvrb}
 \usepackage{import}
@@ -117,16 +116,18 @@
 % customized packages
 \input{packages}
 
-\lstset{
-language=C,
-mathescape=true,
-numbers=left,
-stepnumber=1,
-numberblanklines=false,
-basicstyle=\footnotesize,
-numberstyle=\footnotesize,
-numbersep=3pt,
-escapeinside={/*}{*/},
+\lstset{language=C++,
+    numberstyle=\footnotesize,
+    numbers=left,
+    numbersep=5pt,
+    numberblanklines=true,
+    captionpos=b,
+    basicstyle=\footnotesize\ttfamily,
+    columns=flexible,
+    xleftmargin=16pt,
+    frame=none,
+    tabsize=2,
+    escapeinside={/*@}{@*/},
 }
 
 \makeatletter
@@ -275,7 +276,8 @@ escapeinside={/*}{*/},
 
 
 \input{introduction}
-%\input{static-analysis}
+\input{overview}
+\input{design}
 \input{implementation}
 \input{experiments}
 %% Extensions to the paper here
