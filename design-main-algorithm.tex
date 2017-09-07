@@ -29,7 +29,7 @@ containing the names of the functions that the user wishes to skip
 among other properties, the next instruction to be executed (denoted
 by $\Call{instruction}{\workstate}$), the activation record stack, and
 a (symbolic) description of the program \emph{heap}. For example, the
-chopped symbolic execution described in \Cref{sec:overview} begins
+chopped symbolic execution described in \Cref{chapter:overview} begins
 with $\instate$ in which the stack contains only the activation record
 of $\code{main}$, with the program counter at
 line~\ref{line:main_enter}, an empty heap, and
@@ -44,18 +44,17 @@ symbolic state $\workstate$ to explore out of the worklist
 (\cref{alg:pop-worklist}). Unconventionally, however, we assume that
 the selected state is not suspended, as suspended states are blocked
 until the value of the depended load is resolved (see
-\S\ref{sec:overview}).\footnote{For simplicity, we defer the
+\S\ref{chapter:overview}).\footnote{For simplicity, we defer the
   discussion regarding the search heuristics to \S\ref{Se:Search}, and
   assume, for now, that any unsuspended state can be returned.}  The
 next step of the algorithm depends on the instruction type
 (\cref{alg:switch}).
 
-%\subsection{\caseof{Handling $\instruct{Call}$ instructions}}
 \subsection{\text{Handling \textit{Call} Instructions}}
 %{(lines~\ref{alg:casecall-begin}--\ref{alg:casecall-end})}}
 
 A $\instruct{Call}$ instruction is handled as illustrated by step
-\step{1} in \Cref{fig:simple} (see \S\ref{sec:overview}): First, the
+\step{1} in \Cref{fig:simple} (see \S\ref{chapter:overview}): First, the
 algorithm determines the name $f$ of the invoked function
 (\cref{alg:call-find-target}). Then, if $f$ is one of the skipped
 functions, the algorithm creates a snapshot of the current state
@@ -88,11 +87,11 @@ $\instruct{Load}$ instruction is handled as usual in symbolic
 execution (\cref{alg:load-normal}).
 
 Procedure \textsc{createRecoveryState} is shown in
-\Cref{fig:aux-func-recS}. The function handles $\instruct{Load}$
+\ref{fig:aux-func-recS}. The function handles $\instruct{Load}$
 instructions as illustrated by step \step{2}{} in \Cref{fig:simple}
-(see \S\ref{sec:overview}): It iterates over the list of skipped
-functions (\cref{alg:recover-foreach}), and uses
-$\Call{mayMod}{\workstate, f,\addr}$ to determine which of the skipped
+(see \S\ref{chapter:overview}): It iterates over the list of skipped
+functions (\Cref{alg:recover-foreach}), and uses
+$\Call{mayMod}{\workstate, f, \addr}$ to determine which of the skipped
 functions $f$ might have modified the dependent address. Once it finds
 such a function (\cref{alg:recover-if-found}), the current state
 becomes a dependent state (\cref{alg:recover-gen-depS}) and it is
@@ -116,7 +115,7 @@ pushes the two states into the worklist
 The algorithm checks whether the current state $\workstate$ is a
 recovery state. If so, then the $\instruct{Branch}$ instruction is
 handled as illustrated by steps \step{4}{} and \step{5}{} in
-\Cref{fig:simple} (see \S\ref{sec:overview}): It first extracts from
+\Cref{fig:simple} (see \S\ref{chapter:overview}): It first extracts from
 the worklist the (suspended) dependent state $\dependentState$, which
 spawned $\workstate$ as a recovery state
 (\cref{alg:extract-dependent}).  It then determines the branch
@@ -151,7 +150,7 @@ $\workstate$ is updated as usual in symbolic execution
 the algorithm invokes
 \Call{udpateDependentStates}{$\workstate, \addr$} (code elided) to
 updated the dependent state (as illustrated by step \step{6}{} in
-\Cref{fig:simple}, see \S\ref{sec:overview}). In addition, it also
+\Cref{fig:simple}, see \S\ref{chapter:overview}). In addition, it also
 updates the set of overwritten addresses in the list of skipped
 invocations of the dependent state. Note that
 \Call{udpateDependentStates}{$\dependentState, \inst$} updates, but
@@ -165,7 +164,7 @@ recovery state. If $\workstate$ is a recovery state \emph{and} the
 $\instruct{Exit}$ instruction is invoked inside the skipped function,
 then the recovery is terminated and the instruction is handled as
 illustrated by step \step{7}{} in \Cref{fig:simple} (see
-\S\ref{sec:overview}): Specifically, the recovery state itself if
+\S\ref{chapter:overview}): Specifically, the recovery state itself if
 discarded (\cref{alg:exit-terminate-recovery}) and the dependent state
 is resumed \cref{alg:exit-resume}. Otherwise, the $\instruct{Exit}$
 instruction is handled as usual in symbolic execution
