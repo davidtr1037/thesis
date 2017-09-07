@@ -1,14 +1,10 @@
 %!TEX Root=./paper.tex
 
-
 \begin{algorithm} % [tbp]
 \caption{Chopped symbolic execution (simplified).\label{fig:chopped-symbexe-recover}\label{fig:chopped-symbexe} }
 \begin{algorithmic}[1]
-  \Function{cse}{$\instate$,
-                 %$\runfunc$,
-                 $\skipFunctions$}
+  \Function{cse}{$\instate$, $\skipFunctions$}
   \State $\worklist \gets \worklist \cup \{ \instate\}$  \label{alg:seed-worklist}
-  %\Call{entryPoint}{$\runfunc$}
   \While{$\worklist \neq \emptyset$}                     \label{alg:iterate-worklist}
     \State $\workstate \gets  \Call{selectUnsuspended}{\worklist}$ \label{alg:pop-worklist}
     \State $\inst \gets  \Call{instruction}{\workstate}$ \label{alg:get-switch-inst}
@@ -24,82 +20,36 @@
         \State $\Call{executeCall}{\workstate}$ \label{alg:call-normal}
       \EndIf
     \EndCase \label{alg:casecall-end}
-
-
     \Case{Load} \label{alg:caseload-begin}
       \State $\addr \gets \Call{loadAddress}{\workstate}$
-      %\State $\as \gets \Call{allocSite}{\addr,\workstate}$
-      %\State $F = \{ f \in \workstate.\skipped \mid as \in mod(f)\}$
-      %\If{$F \neq \emptyset$ }
       \If{$\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$}%.\skipped}$}
-        % \State \Call{suspend}{$\workstate$}\label{alg:suspend}
-        %\noam{TODO: Explain that this is a simplification and recovery states are maintained in a pool}
-        % \State $\worklist  \gets  \worklist  \cup \{\workstate\}$ \label{alg:push-worklist-load}
+        %\TODO: Explain that this is a simplification and recovery states are maintained in a pool
         \State $\Call{createRecoveryState}{\workstate,\addr}$ \label{alg:call-recover}
-
-        % \ForEach{$f \in \workstate.\skipped$}
-        %   \If{$f \in F$}
-        %      \State $\snapshot \gets  \Call{getSnapshot}{\workstate, f}$
-        %      \State $\slice \gets \Call{getSlice}{f, \as}$
-        %      \State $\Call{createRecoveryState}{\snapshot, \workstate, \slice, \addr$}
-        %   \EndIf
-        % \EndFor
-        % \State \Call{resume}{$\workstate$}
       \Else
       \State \Call{executeLoad}{$\workstate, \inst$}  \label{alg:load-normal}
       \EndIf
-   \EndCase \label{alg:caseload-end}
-
-   \Case{Branch} \label{alg:casebranch-begin}
+    \EndCase \label{alg:caseload-end}
+    \Case{Branch} \label{alg:casebranch-begin}
       \If{$\workstate.\isRecovery$} \label{alg:branch-check-recovery}
         \State $\varphi = \Call{condition}{\inst}$  \label{alg:branch-get-cond}
         \State $\dependentState \gets  \Call{getDependent}{\workstate}$ \label{alg:extract-dependent}
-
         \State $\workstate'' \gets \Call{fork}{\workstate,\varphi }$ \label{alg:branch-fork-true1}
         \State $\dependentState'' \gets \Call{fork}{\dependentState,\varphi }$ \label{alg:branch-fork-true2}
       \If{$\Call{feasible}{\workstate''} \land \Call{feasible}{\dependentState''}$} \label{alg:branch-feasible-true}
            \State $\worklist  \gets  \worklist  \cup \{\workstate'', \dependentState''\}$
            \label{alg:push-worklist-true-branch}
       \EndIf
-
       \State $\workstate' \gets \Call{fork}{\workstate, \neg\varphi}$ \label{alg:branch-fork-false1}
       \State $\dependentState' \gets \Call{fork}{\dependentState, \neg\varphi}$ \label{alg:branch-fork-false2}
       \If{$\Call{feasible}{\workstate'} \land \Call{feasible}{\dependentState'}$}  \label{alg:branch-feasible-false}
            \State $\worklist  \gets  \worklist  \cup \{\workstate'', \dependentState''\}$
            \label{alg:push-worklist-false-branch}
       \EndIf
-
-      % \State $\workstate'' \gets \Call{fork}{\workstate,\varphi }$
-      %   \If{$\Call{feasible}{\workstate''}$}
-      %     \State $\worklist  \gets  \worklist  \cup \{\workstate''\}$ \label{alg:push-worklist-true-branch}
-      %     \If{$\Call{isRecoveryState}{\workstate}$}
-      %       \State $\worklist  \gets  \worklist  \cup \{\workstate''\}$ \label{alg:push-worklist-true-branch}
-      %     \EndIf
-      %   \EndIf
-      %   \State $\workstate' \gets \Call{fork}{\workstate, \neg\varphi}$
-      %   \If{$\Call{feasible}{\workstate'}$}
-      %     \State $\worklist  \gets  \worklist  \cup \{\workstate'\}$ \label{alg:push-worklist-false-branch}
-      %   \EndIf
-      %   \State \Call{addPathConstraints}{$\recoveryState, \varphi$}
-      %   \State \Call{addPathConstraints}{$\dependentState, \varphi$}
-      %   \State $\recoveryState' \gets$ \Call{fork}{$\recoveryState$}
-      %   \State $\dependentState' \gets$ \Call{fork}{$\dependentState$}
-      %   \State \Call{addPathConstraints}{$\recoveryState', \neg \varphi$}
-      %   \State \Call{addPathConstraints}{$\dependentState', \neg \varphi$}
-
-
-      %   \State \Call{addPathConstraints}{$\recoveryState, \varphi$}
-      %   \State \Call{addPathConstraints}{$\dependentState, \varphi$}
-      %   \State $\recoveryState' \gets$ \Call{fork}{$\recoveryState$}
-      %   \State $\dependentState' \gets$ \Call{fork}{$\dependentState$}
-      %   \State \Call{addPathConstraints}{$\recoveryState', \neg \varphi$}
-      %   \State \Call{addPathConstraints}{$\dependentState', \neg \varphi$}
-     \Else
+      \Else
         \State \Call{executeBranch}{$\workstate$}  \label{alg:branch-normal}
-    \EndIf
-   \EndCase \label{alg:casebranch-end}
-
-   \Case{Store} \label{alg:casestore-begin}
+      \EndIf
+    \EndCase \label{alg:casebranch-end}
+    \Case{Store} \label{alg:casestore-begin}
       \State $\addr \gets \Call{storeAddress}{\workstate}$
       \State $\Call{recordOverwrite}{\workstate,\addr}$     \label{alg:record-overwrite}
       \State $\Call{executeStore}{\workstate,\addr}$     \label{alg:store-normal}
@@ -108,24 +58,14 @@
       \State \Call{updateDependentState}{$\workstate, \addr$}
       \label{alg:store-udpate-dep-states}
 
-
-\ignore{
+      \ignore{
         \If{$\addr = $\Call{dependentLoad}{$\workstate$}}
           \State $\dependentState \gets  \Call{getDependent}{\workstate}$
           \label{alg:store-extract-dependent}
           \State \Call{executeStore}{$\dependentState, \inst$}
         \EndIf
-}
-
-        % \If{$\addr = $\Call{dependentLoad}{$\workstate$}}
-        %   \State $\dependentState \gets  \Call{getDependent}{\worklist,\workstate}$
-        %   \label{alg:store-extract-dependent}
-        %   \State \Call{executeStore}{$\dependentState, \inst$}
-        % \EndIf
-     \EndIf
-    %  \Else
-    %     \State \Call{executeStore}{$\workstate$}  \label{alg:store-normal}
-    % \EndIf
+      }
+      \EndIf
     \EndCase \label{alg:casestore-end}
     \Case{Exit} \label{alg:caseexit-begin}
       \If{$\workstate.\isRecovery \land \Call{retInSkip}{\workstate}$} \label{alg:exit-check-recovery}
@@ -137,11 +77,9 @@
       \Else
         \State \Call{executeExit}{$\workstate$}  \label{alg:exit-normal}
         \label{alg:push-worklist-exit}
-    \EndIf
+      \EndIf
     \EndCase \label{alg:caseexit-end}
-
     \EndSwitch
-%    \State $\inst \gets \Call{getNextInst}{}$
   \EndWhile
   \EndFunction
 \end{algorithmic}
@@ -176,67 +114,17 @@
 \begin{algorithmic}[1]
 
 
-\Function{mayMod}{$\workstate,
-                   \funclist, %$\dependentState$, $\slice$,
-                   \addr$}
+\Function{mayMod}{$\workstate, \funclist, \addr$}
   \ForEach{$(f,\snapshot,\owset) \in \funclist$}
     \If{$\Call{allocSite}{\workstate,\addr} \in \Call{modSet}{f}$} \label{alg:maymod-static}
       \If{$\addr\not\in\owset$}  \label{alg:maymod-dynamic}
-         %\State $\dependentState \gets \Call{fork}{\workstate}$
          \State \Return{$\mathit{true}$}
        \EndIf
     \EndIf
-       %\State $\dependentState \gets \Call{fork}{\workstate}$
-    %\State \Return{$\mathit{true}$}
   \EndFor
   \State \Return{$\mathit{false}$}
 \EndFunction
 
-
-%   %\State $\as \gets \Call{allocSite}{\addr,\workstate}$
-%   %\State $F = \{ f \in \workstate.\skipped \mid as \in mod(f)\}$
-%   %\If{$F \neq \emptyset$ }
-%   \If{$\Call{mayMod}{\workstate,\addr}$}%.\skipped}$}
-%     \State \Call{suspend}{$\workstate$}\label{alg:suspend}
-%     %\noam{TODO: Explain that this is a simplification and recovery states are maintained in a pool}
-%     \State $\worklist  \gets  \worklist  \cup \{\workstate\}$ \label{alg:push-worklist-load}
-%     \State $\Call{createRecoveryState}{\workstate}$ \label{alg:call-recover}
-
-%     \State \Call{resume}{$\workstate$}
-%   \Else
-%   \State \Call{executeLoad}{$\workstate, \inst$}  \label{alg:load-normal}
-%   \EndIf
-
-
-%   \State $\recoveryState \gets \Call{fork}{\snapshot}$
-%   \State $gc \gets$ \Call{getGuidingConstraints}{$\dependentState$}
-%   \State \Call{updatePathConstraints}{$\recoveryState, gc$}
-
-%   \State $inst \gets$ \Call{firstInst}{$\slice$}
-%   \While{$inst$}
-%     \Switch{$inst$}
-%     % \Case{Store}
-%     %   \State \Call{executeStore}{$recoverS, inst$}
-%     %   \If{$addr = $ \Call{target}{$inst$}}
-%     %     \State \Call{executeStore}{$dependentState, inst$}
-%     %   \EndIf
-%     % \EndCase
-%     % \Case{Branch}
-%     %   \State $\varphi = $ \Call{condition}{$inst$}
-%     %   \State \Call{addPathConstraints}{$\recoveryState, \varphi$}
-%     %   \State \Call{addPathConstraints}{$\dependentState, \varphi$}
-%     %   \State $recoveryState' \gets$ \Call{fork}{$recoveryState$}
-%     %   \State $dependentState' \gets$ \Call{fork}{$\dependentState$}
-%     %   \State \Call{addPathConstraints}{$\recoveryState', \neg \varphi$}
-%     %   \State \Call{addPathConstraints}{$\dependentState', \neg \varphi$}
-%     % \EndCase
-%     % \Case{ExitPoint}
-%     %   \State \Call{terminate}{$\recoveryState$}
-%     % \EndCase
-%     \EndSwitch
-% %    \State $\inst \gets  \Call{getNextInst}{}$
-%   \EndWhile
-% \EndFunction
 \end{algorithmic}
 \end{algorithm}
 
