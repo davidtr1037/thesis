@@ -203,12 +203,6 @@ escapeinside={/*}{*/},
 
 %%%%%%%%%%%%      MAIN  DOCUMENT      %%%%%%%%%%%%
 
-% Paper -> Thesis %
-\let\subparagraph\paragraph
-\let\paragraph\subsubsection
-\let\subsubsection\subsection
-\let\subsection\section
-\let\section\chapter
 
 %% This generates the index
 \makeindex
@@ -280,23 +274,14 @@ escapeinside={/*}{*/},
 %%
 
 
-%\input{introduction}
-%\input{syscalls}
-%\input{pl}
-%\input{instrumented}
+\input{introduction}
 %\input{static-analysis}
-%\input{contracts}
-%\input{implementation}
-%\input{experiments}
+\input{implementation}
+\input{experiments}
 %% Extensions to the paper here
-%\input{strings}
-%\input{dynamic-calls}
-%\input{inter-proc}
-%\input{lifting}
-%\input{se-extension}
 % Related work and conclusion
 \input{related}
-%\input{conc}
+\input{conclusion}
 %\appendix
 %\input{contracts-verbatim}
 %\input{notes-at-the-end}

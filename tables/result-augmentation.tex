@@ -1,0 +1,19 @@
+\begin{table}[tbp]
+  \caption{Line (L) and branch (B) coverage achieved by KLEE
+    and \toolname on \textsf{BC} and \textsf{libyaml} in one hour.}
+\begin{tabular}{|l|rr|rr|rr|}
+  \hline
+  \multirow{3}{*}{\textbf{Program}} & \multicolumn{2}{c|}{\multirow{2}{*}{\textbf{KLEE}}} & \multicolumn{4}{c|}{\textbf{KLEE+\toolname}} \\
+  & & & \multicolumn{2}{c|}{\textbf{Full $\mathcal{F}$}} & \multicolumn{2}{c|}{\textbf{Sliced $\mathcal{F}$}} \\
+  & \makecell[c]{\textbf{L}} & \makecell[c]{\textbf{B}} & \makecell[c]{\textbf{L}} & \makecell[c]{\textbf{B}} & \makecell[c]{\textbf{L}} & \makecell[c]{\textbf{B}} \\\hline
+  BC      & 12.52\% & 10.16\% & 14.73\% & 12.68\% & 14.95\% & 13.31\% \\ \hline
+  LibYAML & 10.8\%  & 4.2\%   & 22.6\%  & 15.0\%  & 22.6\%  & 15.0\% \\
+  \hline
+\end{tabular}\vspace{-5mm}
+\label{tab:experiments-table-augmentation}
+\end{table}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "../paper"
+%%% End:

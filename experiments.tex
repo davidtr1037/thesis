@@ -1,5 +1,7 @@
 %!TEX root=./paper.tex
 
+\chapter{Experiments}\label{chapter:experiments}
+
 Our evaluation aims to provide preliminary evidence that this novel
 form of symbolic execution can lead to significant scalability
 gains. In particular, we evaluate its effectiveness when embodied in
@@ -33,7 +35,7 @@ constraint solver~\cite{stp}. We conduct our experiments on two
 identical servers running Ubuntu 14.04, equipped with an 8-core Intel
 processor at 3.5 GHz and 16GB of RAM.
 
-\subsection{Failure Reproduction}
+\section{Failure Reproduction}
 \label{sec:disc-secur-vuln}
 In this experiment we use chopped symbolic execution for failure
 reproduction. In particular, we run a symbolic executor to generate
@@ -53,7 +55,7 @@ inputs that trigger known security vulnerabilities.
 \label{tab:vuln-stats}
 \end{table}
 
-\paragraph{Benchmarks} The subjects of this part of the evaluation are
+\subsection{Benchmarks} The subjects of this part of the evaluation are
 vulnerabilities taken from GNU \textsf{libtasn1}. As briefly discussed
 in the introduction, GNU \textsf{libtasn1} is a library for
 serializing and deserializing data in Abstract Syntax Notation One
@@ -71,8 +73,8 @@ experiment we aim to reproduce a total of six failures.
 
 \input{tables/result-vulnerability.tex}
 
-\paragraph{Methodology} We proceed with the following evaluation
-process:
+\subsection{Methodology}
+We proceed with the following evaluation process:
 
 \begin{enumerate}[leftmargin=*]
 \item We manually create an execution driver for the \textsf{libtasn1}
@@ -99,7 +101,7 @@ random heuristic with the same seed, thus obtaining the same
 exploration between consecutive runs and allowing for a fair
 comparison between KLEE and \toolname.
 
-\paragraph{Results}
+\subsection{Results}
 Table~\ref{tab:vulnerability-table} summarizes the high-level results
 of our failure reproduction experiment. For each vulnerability and
 search heuristic we report the effectiveness of KLEE and \toolname at
@@ -162,7 +164,7 @@ slicing were more expensive than directly analyzing the functions. We
 plan to develop a lightweight analysis to speculatively identify when
 to apply slicing on the skipped functions.
 
-\subsection{Test Suite Augmentation}
+\section{Test Suite Augmentation}
 \label{sec:code-cover-impr}
 In this experiment we use chopped symbolic execution for test suite
 augmentation. We do that by running \toolname on a subject program
@@ -172,7 +174,7 @@ essence, we want to assess the effectiveness of chopped symbolic
 execution in complementing standard symbolic execution in test
 generation, ultimately increasing structural coverage.
 
-\paragraph{Benchmarks} The subjects of this part of the evaluation are
+\subsection{Benchmarks} The subjects of this part of the evaluation are
 GNU \textsf{BC} 2.27 and \textsf{LibYAML}. \textsf{BC} is an
 arbitrary-precision calculator that solves mathematical expressions
 written in a C-style language.  \textsf{LibYAML} is a well-known
@@ -185,7 +187,7 @@ program, we rely on the program's documentation and personal
 experience with the subject to identify the best argument
 configuration that can maximize coverage.
 
-\paragraph{Methodology} We proceed with the following
+\subsection{Methodology} We proceed with the following
 evaluation process:
 
 \begin{enumerate}[leftmargin=*]
@@ -209,7 +211,7 @@ evaluation process:
 
 \input{tables/result-augmentation.tex}
 
-\paragraph{Results}
+\subsection{Results}
 Table~\ref{tab:experiments-table-augmentation} summarizes the results
 of our test suite augmentation experiment. For each case study we
 report the structural coverage of a symbolic executor as percentage of
@@ -250,7 +252,7 @@ on the case study. In this experiment, slicing is not beneficial in
 \textsf{LibYAML}, while it contributes to increase coverage on
 \textsf{BC}.
 
-\subsection{Threats to Validity}
+\section{Threats to Validity}
 Here we briefly discuss the countermeasures we adopted to mitigate the
 threats to validity. The internal validity depends on the correctness
 of our prototype implementations, and may be threatened by the
