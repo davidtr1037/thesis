@@ -1,0 +1,323 @@
+@preamble{ "\newcommand{\noopsort}[1]{} "
+	# "\newcommand{\printfirst}[2]{#1} "
+	# "\newcommand{\singleletter}[1]{#1} "
+	# "\newcommand{\switchargs}[2]{#2#1} " }
+
+%-------------------------- Locations -------------------------%i
+@String{Alexandria = "Alexandria, VA, USA"}
+@String{Amsterdam = "Amsterdam, The Netherlands"}
+@String{Anaheim = "Anaheim, CA, USA"}
+@String{Asheville = "Asheville, NC, USA"}
+@String{Atlanta = "Atlanta, GA, USA"}
+@String{Auckland = "Auckland, New Zealand"}
+@String{Austin = "Austin, TX, USA"}
+@String{Baltimore = "Baltimore, MD, USA"}
+@String{Barcelona = "Barcelona, Spain"}
+@String{Beijing = "Beijing, China"}
+@String{Bellevue = "Bellevue, WA, USA"}
+@String{Berkeley = "Bergamo, Italy"}
+@String{Berkeley = "Berkeley, CA, USA"}
+@String{Berlin = "Berlin, Germany"}
+@String{Bertinoro = "Bertinoro, Italy"}
+@String{BigSky = "Big Sky, MT, USA"}
+@String{Bolzano = "Bolzano, Italy"}
+@String{Boston = "Boston, MA, USA"}
+@String{Boulder = "Boulder, CO, USA"}
+@String{Braga = "Braga, Portugal"}
+@String{Brighton = "Brighton, UK"}
+@String{Budapest = "Budapest, Hungary"}
+@String{Cambridge = "Cambridge, MA, USA"}
+@String{CambridgeUK = "Cambridge, UK"}
+@String{CapeTown = "Cape Town, South Africa"}
+@String{Cary = "Cary, NC, USA"}
+@String{Cascais = "Cascais, Portugal"}
+@String{Chamonix = "Chamonix, France"}
+@String{Charleston = "Charleston, SC, USA"}
+@String{ChateauLakeLouise = "Chateau Lake Louise, AB, Canada"}
+@String{Chicago = "Chicago, IL, USA"}
+@String{ClearwaterBeach = "Clearwater Beach, FL, USA"}
+@String{CliffLodge = "Cliff Lodge, Snowbird, UT, USA"}
+@String{Coimbra = "Coimbra, Portugal"}
+@String{Concord = "Concord, MA, USA"}
+@String{Copenhagen = "Copenhagen, Denmark"}
+@String{CopperMountain = "Copper Mountain, CO, USA"}
+@String{Dallas = "Dallas, TX, USA"}
+@String{Dakar = "Dakar, Senegal"}
+@String{Delft = "Delft, Netherlands"}
+@String{Denver = "Denver, CO, USA"}
+@String{Dublin = "Dublin, Ireland"}
+@String{Dubrovnik = "Dubrovnik, Croatia"}
+@String{Edinburgh = "Edinburgh, UK"}
+@String{Eindhoven = "Eindhoven, The Netherlands"}
+@String{Essen = "Essen, Germany"}
+@String{Florence = "Florence, Italy"}
+@String{Ghent = "Ghent, Belgium"}
+@String{Grenoble = "Grenoble, France"}
+@String{Haifa = "Haifa, Israel"}
+@String{Hannover = "Hannover, Germany"}
+@String{Helsinki = "Helsinki, Finland"}
+@String{Hiroshima = "Hiroshima, Japan"}
+@String{HongKong = "Hong Kong"}
+@String{Honolulu = "Honolulu, HI, USA"}
+@String{Houston = "Houston, TX, USA"}
+@String{Hyderabad = "Hyderabad, India"}
+@String{Istanbul = "Istanbul, Turkey"}
+@String{Ischia = "Ischia, Italy"}
+@String{Johannesburg = "Johannesburg, South Africa"}
+@String{Kitakyushu = "Kitakyushu, Japan"}
+@String{LakePlacid = "Lake Placid, NY, USA"}
+@String{Lancaster = "Lancaster, UK"}
+@String{LAquila = "L'Aquila, Italy"}
+@String{LakeBuenaVista = "Lake Buena Vista, FL, USA"}
+@String{LasVegas = "Las Vegas, Nevada, USA"}
+@String{Lawrence = "Lawrence, KS, USA"}
+@String{Leiden = "Leiden, The Netherlands"}
+@String{Leipzig = "Leipzig, Germany"}
+@String{Leuven = "Leuven, Belgium"}
+@String{Limerick = "Limerick, Ireland"}
+@String{Linkoping = "Link\{o}ping, Sweden"}
+@String{Lisbon = "Lisbon, Portugal"}
+@String{London = "London, UK"}
+@String{LongBeach = "Long Beach, CA, USA"}
+@String{LosAngeles = "Los Angeles, CA, USA"}
+@String{Luxembourg = "Luxembourg"}
+@String{Madrid = "Madrid, Spain"}
+@String{Manchester = "Manchester, UK"}
+@String{Marseille = "Marseille, France"}
+@String{Maui = "Maui, Hawaii, USA"}
+@String{Miami = "Miami, FL, USA"}
+@String{Minneapolis = "Minneapolis, MN, USA"}
+@String{Monterey = "Monterey, CA, USA"}
+@String{Montreal = "Montreal, Canada"}
+@String{Munich = "Munich, Germany"}
+@String{Nagasaki = "Nagasaki, Japan"}
+@String{NewOrleans = "New Orleans, LA, USA"}
+@String{NewportBeach = "Newport Beach, CA, USA"}
+@String{NewYork = "New York, NY, USA"}
+@String{Nice = "Nice, France"}
+@String{Nuremberg = "Nuremberg, Germany"}
+@String{Oakland = "Oakland, CA, USA"}
+@String{OakRidge = "Oak Ridge, TN, USA"}
+@String{Orlando = "Orlando, FL, USA"}
+@String{Ottawa = "Ottawa, Canada"}
+@String{Oxford = "Oxford, UK"}
+@String{Paderborn = "Paderborn, Germany"}
+@String{PaloAlto = "Palo Alto, CA, USA"}
+@String{Paphos = "Paphos, Cyprus"}
+@String{Paris = "Paris, France"}
+@String{Pasadena = "Pasadena, CA, USA"}
+@String{Penang = "Penang, Malaysia"}
+@String{Philadelphia = "Philadelphia, PA, USA"}
+@String{Pittsburgh = "Pittsburgh, PA, USA"}
+@String{Portland = "Portland, OR, USA"}
+@String{Prague = "Prague, Czech Republic"}
+@String{Prato = "Prato, Italy"}
+@String{Princeton = "Princeton, NJ, USA"}
+@String{Rennes = "Rennes, France"}
+@String{Raleigh = "Raleighs, NC, USA"}
+@String{Rome = "Rome, Italy"}
+@String{Saarbrucken = "Saarbr\{u}cken, Germany"}
+@String{SaintMalo = "Saint Malo, France"}
+@String{SaintPetersburg = "Saint Petersburg, Russia"}
+@String{SaltLakeCity = "Salt Lake City, UT, USA"}
+@String{Salzburg = "Salzburg, Austria"}
+@String{SanAntonio = "San Antonio, TX, USA"}
+@String{SantaBarbara = "Santa Barbara, CA, USA"}
+@String{SanDiego = "San Diego, CA, USA"}
+@String{SanFrancisco = "San Francisco, CA, USA"}
+@String{SanJose = "San Jose, CA, USA"}
+@String{SantaCruz = "Santa Cruz, NM, USA"}
+@String{SantaFe = "Santa Fe, NM, USA"}
+@String{Seattle = "Seattle, WA, USA"}
+@String{Seoul = "Seoul, Korea"}
+@String{Shanghai = "Shanghai, China"}
+@String{Shenzhen = "Shenzhen, China"}
+@String{Singapore = "Singapore"}
+@String{Snowbird = "Snowbird, UT, USA"}
+@String{SophiaAntipolis = "Sophia Antipolis, France"}
+@String{StLouis = "St. Louis, MO, USA"}
+@String{StPetersburgBeach = "St. Petersburg Beach, FL, USA"}
+@String{Stanford = "Stanford, CA, USA"}
+@String{Stevenson = "Stevenson, WA, USA"}
+@String{Stockholm = "Stockholm, Sweden"}
+@String{Szeged = "Szeged, Hungary"}
+@String{Tainan = "Tainan, Taiwan"}
+@String{Tallinn = "Tallinn, Estonia"}
+@String{TelAviv = "Tel Aviv, Israel"}
+@String{Tokyo = "Tokyo, Japan"}
+@String{Toronto = "Toronto, Canada"}
+@String{Toulouse = "Toulouse, France"}
+@String{Trento = "Trento, Italy"}
+@String{Tucson = "Tucson, AZ, USA"}
+@String{Vancouver = "Vancouver, BC, Canada"}
+@String{Venice = "Venice, Italy"}
+@String{Vienna = "Vienna, Austria"}
+@String{Waikiki = "Waikiki, Honolulu, HI, USA"}
+@String{Warsaw = "Warsaw, Poland"}
+@String{WashingtonDC = "Washington, D.C., USA"}
+@String{Welches = "Welches, OR, USA"}
+@String{WhitePlains = "White Plains, NY, USA"}
+@String{York = "York, UK"}
+@String{Zurich = "Zurich, Switzerland"}
+%-------------------------- Publishers ------------------------%
+
+% ----------------------- Proceedings ------------------------------%
+@String{PROC = "Proceedings of the "}
+%@String{PROC = "Proc. of the "}
+
+%------------------------- Conferences ------------------------%
+@String{OSDI = "{USENIX} Symposium on Operating Systems Design and Implementation"}
+@String{SOSP = "{ACM} Symposium on Operating Systems Principles"}
+@String{EuroSys = "European Conference on Computer Systems"}
+
+@String{SPIN =  "International {SPIN} Workshop on Model Checking of Software"}
+@String{MSRW =  "International Workshop on Mining Software Repositories"}
+@String{AADEBUG = "International Workshop on Automated Debugging"}
+
+@String{CCS = "{ACM} Conference on Computer and Communications Security"}
+@String{ASIACCS = "{ASIAN ACM} Symposium on Information, Computer and Communications Security"}
+@String{USENIX-Sec = "{USENIX} Security Symposium"}
+@String{IEEE-SP = "{IEEE} Symposium on Security and Privacy"}
+@String{ACSAC = "Annual Computer Security Applications Conference"}
+
+@String{ICSE = "International Conference on Software Engineering"}
+@String{ASE = "IEEE International Conference on Automated Software Engineering"}
+@String{FSE = "{ACM} Symposium on the Foundations of Software Engineering"}
+@String{ESEC-FSE = "joint meeting of the European Software Engineering Conference and the {ACM} Symposium on the Foundations of Software Engineering"}
+@String{ESEC-FSE-NI = "joint meeting of the European Software Engineering Conference and the {ACM} Symposium on the Foundations of Software Engineering, New Ideas Track"}
+@String{SIGSOFT-FSE = "{ACM} {SIGSOFT} Symposium on the Foundations of Software Engineering"}
+@String{ICSM = "{IEEE} International Conference on Software Maintenance"}
+@String{ASPEC = "Asia-Pacific Software Engineering Conference"}
+
+@String{PCPC = "Workshop on Languages and Compilers for Parallel Computing"}
+@String{CC = "International Conference on Compiler Construction"}
+@String{CL = "International Conference on Computational Logic"}
+@String{CIAA = "International Conference on Implementation and Application 
+                of Automata"}
+
+@String{ECOOP = "European Conference on Object-Oriented Programming"}
+@String{ESOP = "European Symposium on Programming"}
+@String{FPCA = "ACM Conference on Functional Programming and Computer Architecture"}
+@String{ICFP = "International Conference on Functional Programming"}
+@String{IPPS = "International Parallel Processing Symposium"}
+@String{ISSTA = "International Symposium on Software Testing and Analysis"}
+@String{CSTVA = "Workshop on Constraints in Software Testing, Verification, and Analysis"}
+
+@String{NSDI = "{USENIX} Symposium on Networked Systems Design and Implementation"}
+@String{NDSS = "Network and Distributed System Security Symposium"}
+
+@String{CAV = "International Conference on Computer-Aided Verification"}
+@String{TACAS = "International Conference on Tools and Algorithms for the Construction and Analysis of Systems"}
+@String{FMCAD = "Formal Methods in Computer-Aided Design"}
+@String{IFM = "Integrated Formal Methods"}
+@String{DAC = "Design Automation Conference"}
+@String{ASP-DAC = "Asia and South Pacific Design Automation Conference"}
+
+@String{LICS = "{IEEE} Symposium on Logic in Computer Science"}
+
+@String{PLDI = "Conference on Programing Language Design and Implementation"}
+@String{PPoPP = "{ACM} Symposium on Principles and Practice of Parallel Programming"}
+@String{POPL = "{ACM} Symposium on the Principles of Programming Languages"}
+
+@String{OOPSLA = "Annual Conference on Object-Oriented Programming Systems, Languages and Applications"}
+
+
+@String{SAS = "International Static Analysis Symposium"}
+@String{PASTE = "ACM SIGPLAN-SIGSOFT Workshop on Program Analysis for Software Tools and Engineering"}
+
+@String{USENIX-Winter = "Winter USENIX Conference"}
+@String{USENIX-ATC = "USENIX Annual Technical Conference"}
+@String{USENIX-NT = "USENIX Windows NT Symposium"}
+
+@String{ICISS = "International Conference on Information Systems Security"}
+@String{TAP = "International Conference on Tests and Proofs"}
+@String{ASPLOS = "International Conference on Architectural Support for Programming Languages and Operating Systems"}
+
+@String{EDCC = "European Dependable Computing Conference"}
+
+@String{HOTDEP = "Workshop on Hot Topics in System Dependability"}
+@String{HOTDEP = "Workshop on Hot Topics in Operating Systems"}
+@String{HotSWUp = "Workshop on Hot Topics in Software Upgrades"}
+@String{HotPar = "USENIX Workshop on Hot Topics in Parallelism"}
+
+@String{IJCAI = "International Joint Conference on Artificial Intelligence"}
+
+@String{ISSRE = "International Symposium on Software Reliability Engineering"}
+@String{SIGMETRICS = "ACM SIGMETRICS"}
+
+@String{HVC = "Haifa Verification Conference"}
+@String{GPCE = "International Conference on Generative Programming and Component Engineering"}
+@String{SenSys = "ACM Conference on Embedded Network Sensor Systems"}
+@String{IPSN = "ACM/IEEE International Conference on Information Processing in Sensor Networks"}
+@String{WCCI = "IEEE World Congress on Computational Intelligence"}
+@String{CSF = "IEEE Computer Security Foundations Symposium"}
+@String{IAS = "International Symposium on Information Assurance and Security"}
+@String{DCIA = "International Workshop on Dependable Computing and Its Applications"}
+@String{WODA = "Workshop on Dynamic Analysis"}
+
+@String{ICRS = "International Conference on Reliable Software"}
+@String{CGO = "International Symposium on Code Generation and Optimization"}
+@String{STMCS = "Workshop on Software Tools for MultiCore Systems"}
+
+@String{ICCCN = "International Conference on Computer Communication Networks"}
+@String{ICSTW = "IEEE International Conference on Software Testing, Verification, and Validation Workshops"}
+@String{ICST = "IEEE International Conference on Software Testing, Verification, and Validation"}
+@String{SBST = "International Workshop on Search-Based Software Testing"}
+@String{SSTIC = "Symposium sur la Securite des Technologies de l'Information et des Communications"}
+@String{IPCCC = "International Performance, Computing, and Communications Conference"}
+@String{KR = "International Conference on Principles of Knowledge Representation and Reasoning"}
+@String{CADE = "International Conference on Automated Deduction"}
+
+@String{LISA = "USENIX Conference on System Administration"}
+@String{RAID = "International Symposium on Recent Advances in Intrusion Detection"}
+@String{SAC  = "ACM Symposium on Applied Computing"}
+@String{FoSER = "FSE/SDP workshop on the Future of Software Engineering Research"}
+@String{ICPADS = "International Conference on Parallel and Distributed Systems"}
+@String{GECCO = "Annual Conference on Genetic and Evolutionary Computation"}
+
+@String{FTCS = "IEEE International Symposium on Fault Tolerant Computing"}
+@String{CF = "ACM International Conference on Computing Frontiers"}
+@String{DIFTS = "International Workshop on Design and Implementation of Formal Tools and Systems"}
+@String{VLSISOC = "International Conference on Very Large Scale Integration of System-on-Chip"}
+@String{VLSI = "International Conference on Very Large Scale Integration"}
+
+@String{DEFECTS = "International Workshop on Defects in Large Software Systems"}
+@String{DSMM = "International Workshop on Data-intensive Software Management and Mining"}
+@String{ESEM = "International Symposium on Empirical Software Engineering and Measurement"}
+
+@String{IPDPS = "IEEE International Parallel \& Distributed Processing Symposium"}
+@String{FCST = "Japan-China Joint Workshop on Frontier of Computer Science and Technology"}
+@String{DSN = "International Conference on Dependable Systems and Networks"}
+
+@String{NSPW = "Workshop on New Security Paradigms"}
+@String{OLS = "Ottawa Linux Symposium"}
+@String{WOOT = "{USENIX} Workshop on Offensive Technologies"}
+
+@String{TCON = "{USENIX} Technical Conference"}
+
+@String{JTRES = "{Java} for Embedded Systems Workshop"}
+@String{PPPJ = "International Conference on the Principles and Practice of Programming in {Java}"}
+
+@String{VEE = "Virtual Execution Environments"}
+@String{ISCA = "International Symposium on Computer Architecture"}
+@String{ICCS = "International Conference on Computational Science"}
+
+@String{RV = "Runtime Verification"}
+@String{CSIIRW = "Cyber Security and Information Intelligence Research Workshop"}
+@String{SECRYPT = "International Conference on Security and Cryptography"}
+@String{ALS = "Annual Linux Showcase \& Conference"}
+@String{EXPCS = "Experimental Computer Science"}
+@String{SPDT = "{SIGMETRICS} Symposium on Parallel and Distributed Tools"}
+@String{ICDCS = "{IEEE} International Conference on Distributed Computing Systems"}
+
+@String{RTS = "{EUROMICRO} Conference on Real-Time Systems"}
+@String{HPCA = "International Symposium on High-Performance Computer Architecture"}
+@String{PARCO = "Parallel Computing"}
+@String{CPSNA = "IEEE International Conference on Cyber-Physical Systems, Networks, and Applications"}
+@String{FMCO = "International Symposium on Formal Methods for Components and Objects"}
+@String{IWSMT = "International Workshop on Satisfiability Modulo Theories"}
+@String{LPAR = "International Conference on Logic for Programming, Artificial Intelligence and Reasoning"}
+@String{CASSIS = "International conference on Construction and Analysis of Safe, Secure, and Interoperable Smart Devices"}
+@String{TPHOLS = "Theorem Proving in Higher Order Logics"}
+
+@String{MUTATION = "International Workshop on Mutation Analysis"}
