@@ -152,11 +152,8 @@
   \label{fig:aux-func-recS}}
 \begin{algorithmic}[1]
 
-\Function{createRecoveryState}{$\workstate, %$\dependentState$, $\slice$,
-                   \addr$}
-%  \State $\addr \gets \Call{loadAddress}{\workstate}$ \label{alg:recover-get-addr}
+\Function{createRecoveryState}{$\workstate, \addr$}
   \ForEach{$(f,\snapshot,\owset) \in \workstate.\skipped$} \label{alg:recover-foreach}
-%    \If{$\Call{mayMod}{\workstate, (f,\snapshot),\addr}$} \label{alg:recover-if-found}
     \If{$\Call{mayMod}{\workstate, (f,\snapshot,\owset) ,\addr}$} \label{alg:recover-if-found}
        \State $\dependentState \gets \workstate$ \label{alg:recover-gen-depS}
        \State $\Call{suspend}{\dependentState}$ \label{alg:recover-suspend}
