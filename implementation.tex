@@ -9,7 +9,8 @@ We forked KLEE from commit~\code{b2f93ff}. A user can run \toolname by
 specifying the list of functions to skip along with specific call
 sites via command-line switches.
 
-\section{Static Analysis} Our tool combines static analysis---in
+\section{Static Analysis}
+Our tool combines static analysis---in
 particular mod-ref analysis and slicing---along with symbolic
 execution. Since KLEE operates on LLVM bitcode, we rely on libraries
 that statically analyze LLVM bitcode. In particular, we implemented a
@@ -27,7 +28,8 @@ computed on-demand, only when a recovery is required. The same slice
 may be reused for multiple recoveries, so each slice is computed only
 once.
 
-\section{State Exploration} \toolname also implements its own state
+\section{State Exploration}
+\toolname also implements its own state
 prioritization algorithm, \textit{chopped-aware search heuristic},
 which favors the execution of normal states over recovery ones as
 discussed in \S~\ref{Se:Search}. The algorithm is implemented as a
@@ -37,7 +39,8 @@ us to be search-heuristic agnostic, meaning that our prioritization
 strategy is compatible and can be combined with all present and future
 search heuristics of KLEE.
 
-\section{Limitations} The current main limitation of \toolname is
+\section{Limitations}
+The current main limitation of \toolname is
 the handling of symbolic addresses. Handling a symbolic address in
 \toolname is not trivial, as it may refer to multiple allocation sites
 and in turn lead to the recovery of several different skipped

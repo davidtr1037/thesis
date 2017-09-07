@@ -35,8 +35,7 @@ constraint solver~\cite{stp}. We conduct our experiments on two
 identical servers running Ubuntu 14.04, equipped with an 8-core Intel
 processor at 3.5 GHz and 16GB of RAM.
 
-\section{Failure Reproduction}
-\label{sec:disc-secur-vuln}
+\section{Failure Reproduction}\label{sec:disc-secur-vuln}
 In this experiment we use chopped symbolic execution for failure
 reproduction. In particular, we run a symbolic executor to generate
 inputs that trigger known security vulnerabilities.
@@ -55,7 +54,8 @@ inputs that trigger known security vulnerabilities.
 \label{tab:vuln-stats}
 \end{table}
 
-\subsection{Benchmarks} The subjects of this part of the evaluation are
+\subsection{Benchmarks}
+The subjects of this part of the evaluation are
 vulnerabilities taken from GNU \textsf{libtasn1}. As briefly discussed
 in the introduction, GNU \textsf{libtasn1} is a library for
 serializing and deserializing data in Abstract Syntax Notation One
@@ -174,7 +174,8 @@ essence, we want to assess the effectiveness of chopped symbolic
 execution in complementing standard symbolic execution in test
 generation, ultimately increasing structural coverage.
 
-\subsection{Benchmarks} The subjects of this part of the evaluation are
+\subsection{Benchmarks}
+The subjects of this part of the evaluation are
 GNU \textsf{BC} 2.27 and \textsf{LibYAML}. \textsf{BC} is an
 arbitrary-precision calculator that solves mathematical expressions
 written in a C-style language.  \textsf{LibYAML} is a well-known
@@ -187,8 +188,8 @@ program, we rely on the program's documentation and personal
 experience with the subject to identify the best argument
 configuration that can maximize coverage.
 
-\subsection{Methodology} We proceed with the following
-evaluation process:
+\subsection{Methodology}
+We proceed with the following evaluation process:
 
 \begin{enumerate}[leftmargin=*]
 \item We generate the initial test suite by running KLEE on each
