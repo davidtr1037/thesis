@@ -27,7 +27,7 @@ at lines~\ref{line:px_write} and \ref{line:py_write}, respectively.
 (We compute the side effects of $\code{f}$ using conservative static
 \emph{pointer analysis}~\cite{andersen:pointeranalysis,
   Hind:Paste2001, Smaragdakis:FTPL2015} before the symbolic
-exploration starts, see~\S\ref{sec:design}.) We define those
+exploration starts, see chapter \ref{chapter:design}.) We define those
 instructions that read from the side effects of the skipped functions
 as \textit{dependent loads}.
 
@@ -143,18 +143,17 @@ normal states in the program.
     \lstinputlisting[linewidth=.4\textwidth]{code/simple-main.c}
     \label{fig:simple-main}
   }
-  \hspace{10pt}
-  \subfloat[]{
-    \raisebox{-61pt}{\includegraphics[width=.4\textwidth]{img-states3}}
-    \label{fig:simple-fig}
-  }
   \hspace{30pt}
   \subfloat[]{
     \lstinputlisting[linewidth=.4\textwidth,firstnumber=15]{code/simple-f.c}
     \label{fig:simple-f}
   }
-  \caption{Graphical illustration of chopped symbolic execution on a
-    simple example.}
+  \hspace{10pt}
+  \subfloat[]{
+    \raisebox{-100pt}{\includegraphics[width=.75\textwidth]{img-states3}}
+    \label{fig:simple-fig}
+  }
+  \caption{Graphical illustration of chopped symbolic execution on a simple example.}
   \label{fig:simple}
 \end{figure*}
 
