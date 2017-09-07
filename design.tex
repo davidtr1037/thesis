@@ -1,12 +1,17 @@
 %!TEX root=./paper.tex
 
 
+\chapter{Design}\label{chapter:design}
+
 In this section, we describe our technique in detail and provide the
 background regarding the main static analysis it employs, namely
 \emph{pointer analysis}~\cite{andersen:pointeranalysis,
   Hind:Paste2001, Smaragdakis:FTPL2015}.
 
+\section{TBD}
+
 \input{cse-alg}
+
 \Cref{fig:chopped-symbexe} presents the key steps in chopped
 symbolic execution, which we gradually explain. The algorithm operates
 on a simple imperative C-like heap-manipulating language with
@@ -52,8 +57,10 @@ until the value of the depended load is resolved (see
 next step of the algorithm depends on the instruction type
 (\cref{alg:switch}).
 
-\caseof{Handling $\instruct{Call}$
-  instructions}{(lines~\ref{alg:casecall-begin}--\ref{alg:casecall-end})}
+%\subsection{\caseof{Handling $\instruct{Call}$ instructions}}
+\subsection{\text{Handling \textit{Call} Instructions}}
+%{(lines~\ref{alg:casecall-begin}--\ref{alg:casecall-end})}}
+
 A $\instruct{Call}$ instruction is handled as illustrated by step
 \step{1} in \Cref{fig:simple} (see \S\ref{sec:overview}): First, the
 algorithm determines the name $f$ of the invoked function
@@ -73,8 +80,9 @@ Conversely, if $f$ should not be skipped, the algorithm handles its
 invocation as usual in symbolic execution.  For brevity, we elide the
 standard handling of commands by symbolic execution.
 
-\caseof{Handling $\instruct{Load}$
-  instructions}{(lines~\ref{alg:caseload-begin}--\ref{alg:caseload-end})}
+\subsection{\text{Handling \textit{Load} Instructions}}
+%{(lines~\ref{alg:caseload-begin}--\ref{alg:caseload-end})}
+
 Chopped symbolic execution utilizes
 $\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$, shown in
 \Cref{fig:aux-func-may-mod} and explained in
@@ -109,8 +117,9 @@ $\addr$ of $\dependentState$ (\cref{alg:recover-record-dep}); and
 pushes the two states into the worklist
 (\cref{alg:push-worklist-recovery}).
 
-\caseof{Handling $\instruct{Branch}$
-  instructions}{(lines~\ref{alg:casebranch-begin}--\ref{alg:casebranch-end})}
+\subsection{\text{Handling \textit{Branch} Instructions}}
+%{(lines~\ref{alg:casebranch-begin}--\ref{alg:casebranch-end})}
+
 The algorithm checks whether the current state $\workstate$ is a
 recovery state. If so, then the $\instruct{Branch}$ instruction is
 handled as illustrated by steps \step{4}{} and \step{5}{} in
@@ -136,8 +145,9 @@ $\neg\varphi$. If the current state $\workstate$ is not a recovery
 state, then the $\instruct{Branch}$ instruction is handled as usual in
 symbolic execution (\cref{alg:branch-normal}).
 
-\caseof{Handling $\instruct{Store}$
-  instructions}{(lines~\ref{alg:casestore-begin}--\ref{alg:casestore-end})}
+\subsection{\text{Handling \textit{Store} Instructions}}
+%{(lines~\ref{alg:casestore-begin}--\ref{alg:casestore-end})}
+
 The algorithm executes the $\instruct{Store}$ instruction on the
 current state in two steps. First, it updates the set of overwritten
 addresses of the skipped function to record that a value was stored in
@@ -154,8 +164,9 @@ invocations of the dependent state. Note that
 \Call{udpateDependentStates}{$\dependentState, \inst$} updates, but
 does not resume, the dependent state.
 
-\caseof{Handling $\instruct{Exit}$
-  instructions}{(lines~\ref{alg:caseexit-begin}--\ref{alg:caseexit-end})}
+\subsection{\text{Handling \textit{Exit} Instructions}}
+%{(lines~\ref{alg:caseexit-begin}--\ref{alg:caseexit-end})}
+
 The algorithm checks whether the current state $\workstate$ is a
 recovery state. If $\workstate$ is a recovery state \emph{and} the
 $\instruct{Exit}$ instruction is invoked inside the skipped function,
