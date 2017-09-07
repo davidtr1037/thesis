@@ -59,40 +59,6 @@ information gathered during the symbolic execution regarding
 overwritten locations to refine on-the-fly the detection of the
 \emph{relevant} side effects of skipped functions.
 
-\section{Multiple Recovery States}
-\label{Se:MultiRecovery}
-In some cases, we need to create several recovery states during a
-single chopped symbolic execution.
-
-For example, consider the following code fragment which modifies the
-body of the \code{main()} function in Figure~\ref{fig:simple}:
-\[
-\code{f(\&p,k); if (p.x) \{ p.z++; \} if (p.y) \{ p.z--; \}}
-\]
-If we wish to skip the invocation to $\code{f}()$ then a recovery
-state and a dependent state are created every time the condition of
-the branch needs to be evaluated. Note that the second dependent state
-is produced from the first dependent one and that the resumed state
-encapsulates the changes made by the first recovery state. Assume that
-these changes involve a modification of the value of $\code{p.x}$
-inside the $k>0$ branch at line~\ref{line:px_write}. If the symbolic
-execution of the second recovery state goes through the path in which
-$\code{p.y}$ is updated ($k\le0$), the induced combined execution
-would be infeasible. To avoid this undesirable situation, when a
-recovery state terminates, it adds the new constraints accumulated in
-its path condition to the \textit{guiding constraints} of its dependent state. The added
-constraints are then used in subsequent recovery states. In our
-example in Figure~\ref{fig:simple}, the constraint $k > 0$ is
-propagated from the first recovery state to the first dependent state,
-thus ensuring that the symbolic execution of the second recovery state
-does not follow an infeasible path.
-
-\input{design-multifuncs}
-
-\input{design-malloc}
-
-\input{design-search}
-
 %%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "paper"
