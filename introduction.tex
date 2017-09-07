@@ -1,5 +1,7 @@
 %!TEX root=./paper.tex
 
+\chapter{Introduction}\label{text:introduction}
+
 Symbolic execution lies at the core of many modern techniques to
 software testing, automatic program repair, and reverse
 engineering~\cite{dart,cute,klee,semfix,chipounov2010reverse,JPF-SE}. At
@@ -22,7 +24,7 @@ and generate concrete solutions to the path conditions, symbolic
 execution engines employ \emph{satisfiability-modulo theory} (SMT)
 constraint solvers~\cite{smt:cacm11}.
 
-\paragraph{The Challenge}
+\section{The Challenge}
 Symbolic execution has proven to be effective at finding subtle bugs
 in a variety of software~\cite{klee,exe,JPF-SE,pex,sage}, and has
 started to see industrial
@@ -53,7 +55,7 @@ instructions~\cite{exe,klee,sen:concolicheuristics,fitsymex:dsn09}.
 In practice, these heuristics only partially alleviate the path
 explosion problem, as the following example demonstrates.
 
-\paragraph{Motivating Example.}
+\section{Motivating Example.}
 The \texttt{extract\_octet()} function, shown in
 \Cref{fig:intro-example}, is a simplified version of a function from
 the \texttt{libtasn1} library which parses ASN.1 encoding
@@ -126,7 +128,7 @@ int extract_octet(asn_t asn, char *str, int str_len) {
 \label{fig:intro-example}\vspace{-5mm}
 \end{figure}
 
-\paragraph{Our Approach}
+\section{Our Approach}
 Identifying the vulnerability from the entry point of the library is
 not trivial: To reach the faulty invocation of function \code{get\_length},
 symbolic execution requires to analyze at the very least 2,945 calls
@@ -161,8 +163,8 @@ execution. We then report the results of an initial experimental
 evaluation that demonstrates that this technique can indeed lead to
 efficient and effective exploration of the code under analysis.
 
-\paragraph{Main Results}
-In summary, in this paper we make the following contributions:
+\section{Main Results}
+In summary, in this thesis we make the following contributions:
 \begin{enumerate}[leftmargin=*]
 \item We introduce \emph{chopped symbolic execution}, a novel form of
   symbolic execution that leverages a lightweight specification of
@@ -178,18 +180,18 @@ In summary, in this paper we make the following contributions:
   effectively improve upon standard symbolic execution in both cases.
 \end{enumerate}
 
-This paper is organized as follows. Section~\ref{sec:overview} gives a
-high-level overview of chopped symbolic execution, and
-Section~\Cref{sec:design} presents our technique in detail.
-Section~\ref{sec:implementation} briefly discusses our implementation
-inside the KLEE symbolic execution
-engine. Section~\ref{sec:evaluation} presents the experimental
-evaluation of our technique, and in particular it shows that chopped
-symbolic execution can overcome the limitations of state-of-the-art
-symbolic executors. Section~\ref{sec:related} surveys the main
-approaches related to this work. Section~\ref{sec:conclusion}
-summarizes the contributions of the paper and describes ongoing
-research work.
+%This paper is organized as follows. Section~\ref{sec:overview} gives a
+%high-level overview of chopped symbolic execution, and
+%Section~\Cref{sec:design} presents our technique in detail.
+%Section~\ref{sec:implementation} briefly discusses our implementation
+%inside the KLEE symbolic execution
+%engine. Section~\ref{sec:evaluation} presents the experimental
+%evaluation of our technique, and in particular it shows that chopped
+%symbolic execution can overcome the limitations of state-of-the-art
+%symbolic executors. Section~\ref{sec:related} surveys the main
+%approaches related to this work. Section~\ref{sec:conclusion}
+%summarizes the contributions of the paper and describes ongoing
+%research work.
 
 %%% Local Variables:
 %%% mode: latex
