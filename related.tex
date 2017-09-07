@@ -1,0 +1,51 @@
+%!TEX root=./paper.tex
+
+\section{Related Work}\label{text:related}
+
+The research community has invested significant effort in addressing
+the path explosion challenge in symbolic execution, and this paper
+aligns with this line of work.
+
+As we already mentioned in the introduction, the most common and often
+most effective mechanism employed by symbolic executors are search
+heuristics, whose goal is to guide program exploration to the most
+promising paths in the program.  Popular heuristics include random
+path exploration~\cite{klee}, generational search~\cite{sage} and
+coverage-optimized search~\cite{exe,sen:concolicheuristics}, to name
+just a few.  Unfortunately, search heuristics only partly alleviate
+path explosion, and symbolic execution can still get stuck in
+irrelevant parts of the code.
+
+Another effective technique is to try to prune equivalent program
+paths~\cite{exe:tacas,rwset2}.  For instance, if a path reaches a
+program point with a set of constraints equivalent to those of a
+previous path that reached that point, then the second path (and all
+paths that it would have spawned) can be terminated.  This technique
+is similar in spirit to our approach, but orthogonal, as it does
+nothing to prevent the exploration of code irrelevant to the task at
+hand.  Chopped symbolic execution can be combined with path pruning,
+in order to prune both irrelevant paths, as well as those relevant
+paths which are equivalent to other relevant paths.
+
+Merging paths can also help alleviate path explosion.  Paths can be
+merged either ahead-of-time~\cite{klee-fp,kleecl:tse} or at
+runtime~\cite{merging:pldi12,multise:fse15}. A particular type of path
+merging are function summaries, in which paths within a function are
+merged into a summary that can be reused on subsequent
+invocations~\cite{godefroid:popl,godefroid:tacas}. Path merging can
+lead to exponential reduction in the number of paths explored, but the
+cost is often off-loaded to the constraint solver, which has to deal
+with significantly harder constraints.  Again, chopped symbolic
+execution could be combined with path merging, in order to get the
+benefit of both.
+
+Chopped symbolic execution makes use of program slicing in order to
+explore only the relevant parts of code through the skipped functions.
+Program slicing has been explored in symbolic execution before, \eg in
+the context of patch testing~\cite{babic11}.
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:

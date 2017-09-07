@@ -1,0 +1,272 @@
+%!TEX root=./paper.tex
+
+Our evaluation aims to provide preliminary evidence that this novel
+form of symbolic execution can lead to significant scalability
+gains. In particular, we evaluate its effectiveness when embodied in
+the following two scenarios:
+
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Failure reproduction}, where the research question we
+  explore is: How does chopped symbolic execution perform with respect
+  to standard symbolic execution in generating an input that triggers
+  a failure? In particular, can it reproduce more failures than standard
+  symbolic execution, or can it reproduce the same failures faster?
+
+\item \textbf{Test suite augmentation}, where the research question we
+  explore is: How does chopped symbolic execution perform when steered
+  to generate test cases that improve the structural coverage of code?
+  Can chopped symbolic execution complement the exploration of
+  standard symbolic execution?
+\end{enumerate}
+
+Note that our objective is not to claim that chopped symbolic
+execution is generally a superior technique for a specific task---and
+thus omits a direct comparison with other state-of-the-art techniques
+for each scenario---but rather to assess the attainable benefits of
+chopped symbolic execution when applied to techniques built upon
+symbolic execution engines.
+
+We compare \toolname with baseline KLEE. We use the same KLEE commit
+(\texttt{b2f93ff}) from which we based \toolname.  Both tools are
+compiled with LLVM 3.4.2~\cite{llvm} and use STP 2.1.2 as the
+constraint solver~\cite{stp}. We conduct our experiments on two
+identical servers running Ubuntu 14.04, equipped with an 8-core Intel
+processor at 3.5 GHz and 16GB of RAM.
+
+\subsection{Failure Reproduction}
+\label{sec:disc-secur-vuln}
+In this experiment we use chopped symbolic execution for failure
+reproduction. In particular, we run a symbolic executor to generate
+inputs that trigger known security vulnerabilities.
+
+\begin{table}[tbp]
+  \caption{Security vulnerabilities in \textsf{libtasn1} considered
+    for reproduction, with version used and number of lines of code.}
+\begin{tabular}{|l|c|r|}
+  \hline
+  \textbf{Vulnerability} & \textbf{Version} & \textbf{C SLOC} \\ \hline
+  CVE-2012-1569 & 2.11& 24,448 \\ \hline
+  CVE-2014-3467 & 3.5 & 22,091 \\ \hline
+  CVE-2015-2806 & 4.3 & 28,115 \\ \hline
+  CVE-2015-3622 & 4.4 & 28,109 \\ \hline
+\end{tabular}
+\label{tab:vuln-stats}
+\end{table}
+
+\paragraph{Benchmarks} The subjects of this part of the evaluation are
+vulnerabilities taken from GNU \textsf{libtasn1}. As briefly discussed
+in the introduction, GNU \textsf{libtasn1} is a library for
+serializing and deserializing data in Abstract Syntax Notation One
+(ASN.1) format.  For example, \textsf{libtasn1} is used in GnuTLS to
+define X.509 certificates.  We selected the \textsf{libtasn1} library
+because its code is complex, with nested and deep function calls, and
+can be successfully analyzed by the KLEE symbolic executor.
+Table~\ref{tab:vuln-stats} lists and briefly characterizes the
+vulnerabilities selected for our experiment, which are memory
+out-of-bounds accesses.  Note that each vulnerability requires the
+reproduction of a single failure, except for CVE-2014-3467, for which
+the vulnerability can be exploited in three different code locations,
+so we consider three different failures.  Therefore, in this
+experiment we aim to reproduce a total of six failures.
+
+\input{tables/result-vulnerability.tex}
+
+\paragraph{Methodology} We proceed with the following evaluation
+process:
+
+\begin{enumerate}[leftmargin=*]
+\item We manually create an execution driver for the \textsf{libtasn1}
+  library to exercise the library from its public interface,
+  simulating the interactions of an external program (\eg GnuTLS).
+\item We manually derive the set of functions to skip by inspecting
+  the code, and the vulnerability report that usually includes the
+  stack trace and sometimes results from a dynamic analysis tool (\eg
+  Valgrind~\cite{valgrind2003}). For the selected case studies we
+  managed to identify a candidate set of function to exclude in less
+  than 30 minutes per failure, but a developer familiar with the code
+  should be able to do so faster.
+\item We invoke KLEE and \toolname on the subject with several
+  different search heuristics (random, DFS, and coverage-based) and a
+  time limit of 24 hours. We also configure the symbolic executors to
+  terminate the execution as soon as the vulnerability is
+  identified. We do that by adding a new option to KLEE that, given a
+  list of code locations, terminates the execution as soon as a
+  vulnerability is discovered at all locations.
+\end{enumerate}
+
+Note that we initialize the pseudo-random number generator of the
+random heuristic with the same seed, thus obtaining the same
+exploration between consecutive runs and allowing for a fair
+comparison between KLEE and \toolname.
+
+\paragraph{Results}
+Table~\ref{tab:vulnerability-table} summarizes the high-level results
+of our failure reproduction experiment. For each vulnerability and
+search heuristic we report the effectiveness of KLEE and \toolname at
+reproducing the failure as the time required to generate an input that
+triggers the vulnerability.
+% For \toolname we report for each
+% vulnerability the best result among all validated configurations (more
+% details later).
+
+As can be seen, \toolname outperforms KLEE on all but one case study
+both in terms of number of failures reproduced and performance,
+regardless of the search heuristic applied. Overall, KLEE reproduces
+four failures, CVE-2014-3467$^1$, CVE-2014-3467$^2$, CVE-2015-2806 and
+CVE-2015-3622, and only failure CVE-2014-3467$^1$ can be reproduced
+with all search heuristics. This latter case seems to be relatively
+easy to identify, since KLEE requires only a few seconds. On the other
+cases, KLEE requires between 1 and 20 hours. The problem of path
+explosion in KLEE is particularly visible in CVE-2012-1569 where the
+symbolic executor quickly runs out of available memory (4096 MB) and
+thus fails to reproduce the failure.
+
+In contrast, \toolname can identify all vulnerabilities and generates
+a test case to reproduce each failure in less than 20 minutes, and
+often much faster. Overall, for the vulnerabilities that KLEE can also
+reproduce, CHASER can significantly beat KLEE in terms of performance
+by at least an order of magnitude, with the only exception of
+CVE-2014-3467$^1$ where \toolname can be slowed by the cost of static
+analyses.
+
+Table~\ref{tab:vulnerability-table-chaser} summarizes the detailed
+results of \toolname for the failure reproduction experiment. For each
+vulnerability and search heuristic we report the number of snapshots
+and recovery states generated during chopped symbolic execution
+(Snapshots and Recoveries, respectively), the execution times for
+\toolname with and without slicing (Sliced $\mathcal{F}$ and Full
+$\mathcal{F},$ respectively) as well as statistics on the generated
+slices, which includes the number of slices generated (Num), and the
+total size of the original ($\mathcal{F}$ size) and sliced
+($\mathcal{S}$ size) skipped functions in terms of LLVM instructions.
+
+Table~\ref{tab:vulnerability-table-chaser} shows that the number of
+skipped functions (as deduced by the number of snapshot states) and
+recovery states varies with the nature of the case study, the skipped
+functions, and the search heuristic. In the case of vulnerability
+CVE-2015-2806, \toolname could reproduce the failure without
+recovering. This is the exemplar case that highlights the benefits of
+chopped symbolic execution: While KLEE spent hours interpreting code
+unrelated with the failure, \toolname excluded the uninteresting code
+portions and could proceed analyzing only code of interest,
+consistently identifying the failure with all search heuristics in as
+little as one minute.
+
+Table~\ref{tab:vulnerability-table-chaser} also shows that the benefit
+of slicing the skipped functions depends on the case study. For
+example, for the CVE-2014-3467$^3$ vulnerability, \toolname is on
+average 70\% faster when slicing the skipped functions. Conversely,
+\toolname performs the best without slicing in CVE-2012-1569. A
+plausible explanation is that the additional analyses required for
+slicing were more expensive than directly analyzing the functions. We
+plan to develop a lightweight analysis to speculatively identify when
+to apply slicing on the skipped functions.
+
+\subsection{Test Suite Augmentation}
+\label{sec:code-cover-impr}
+In this experiment we use chopped symbolic execution for test suite
+augmentation. We do that by running \toolname on a subject program
+where we skip functions already exercised by an existing test
+suite. As initial test suite we rely on tests generated by KLEE. In
+essence, we want to assess the effectiveness of chopped symbolic
+execution in complementing standard symbolic execution in test
+generation, ultimately increasing structural coverage.
+
+\paragraph{Benchmarks} The subjects of this part of the evaluation are
+GNU \textsf{BC} 2.27 and \textsf{LibYAML}. \textsf{BC} is an
+arbitrary-precision calculator that solves mathematical expressions
+written in a C-style language.  \textsf{LibYAML} is a well-known
+library for parsing and emitting data in YAML format, which is a human
+friendly data serialization standard.  We choose \textsf{BC} and
+\textsf{LibYAML} because KLEE has a hard time generating high-coverage
+tests. As a result, the code not covered by KLEE is usually related to
+complex features, and we challenge \toolname to exercise it. For each
+program, we rely on the program's documentation and personal
+experience with the subject to identify the best argument
+configuration that can maximize coverage.
+
+\paragraph{Methodology} We proceed with the following
+evaluation process:
+
+\begin{enumerate}[leftmargin=*]
+\item We generate the initial test suite by running KLEE on each
+  subject with coverage-based search heuristic and a time limit of one
+  hour. We use this configuration to maximize structural coverage of
+  the code under analysis, in particular we focus on statement and
+  branch coverage.
+\item We compute the structural coverage obtained with the test suites
+  that KLEE generates using GNU
+  GCov.\footnote{https://gcc.gnu.org/onlinedocs/gcc-4.7.3/gcc/Gcov.html}
+\item We use the coverage information and the call graph to select for
+  each program the set of functions to skip based on the coverage
+  information. For example, suppose that function $f$ calls function
+  $g$ and $h$, and that $f$ and $h$ are covered by a test. We include
+  in the set of the skipped functions only $h$, since $f$ is required
+  to reach uncovered function $g$.
+\item We invoke \toolname on the subjects with coverage-based search
+  heuristic and a time limit of one hour.
+\end{enumerate}
+
+\input{tables/result-augmentation.tex}
+
+\paragraph{Results}
+Table~\ref{tab:experiments-table-augmentation} summarizes the results
+of our test suite augmentation experiment. For each case study we
+report the structural coverage of a symbolic executor as percentage of
+statements (Lines) or branches (Branches) covered by its generated
+test suite. For CHASER we report the structural coverage results with
+and without performing slicing (Sliced $\mathcal{F}$ and Full
+$\mathcal{F}$, respectively).
+
+Table~\ref{tab:experiments-table-augmentation} shows that \toolname
+effectively complements KLEE and increases code coverage even on
+complex subjects. Specifically, on \textsf{BC}, \toolname increased
+statement and branch coverage by +2.43\% and +3.16\%, respectively,
+and on \textsf{LibYAML} it more than doubled statement coverage (from
+10.8\% to 22.6\%) and more than tripled branch coverage (from 4.2\% to
+15\%).
+
+In \textsf{LibYAML} we observed that KLEE spent almost all its budget
+analyzing one function that contains complex logic responsible for
+ensuring that the buffer contains enough characters for parsing while
+handling different encodings, such as UTF-8 or UTF-16. Such function
+is invoked at the beginning of program execution, and KLEE got stuck
+into it, not being able to execute any subsequent line of
+code. Conversely, \toolname skipped the expensive invocation and
+continued to explore other parts of the code. Our chopping-aware
+search heuristic also allowed us to recover paths inside the expensive
+function while giving higher priority to non-recovery states, in turn
+resulting in a more in-depth exploration of the code.
+
+In case of \textsf{BC}, \toolname managed to skipped expensive
+functions that initialize the parsing of the input file and reached
+the actual parsing functions. Unfortunately, the analysis quickly got
+stuck in the parsing routine due to timeouts in the constraint solver
+due to the complex constraints, resulting in a limited increase in
+coverage.
+
+As for the previous experiment, the benefit of slicing strictly depend
+on the case study. In this experiment, slicing is not beneficial in
+\textsf{LibYAML}, while it contributes to increase coverage on
+\textsf{BC}.
+
+\subsection{Threats to Validity}
+Here we briefly discuss the countermeasures we adopted to mitigate the
+threats to validity. The internal validity depends on the correctness
+of our prototype implementations, and may be threatened by the
+evaluation setting and the execution of the experiments.  We carefully
+tested our prototype with respect to the original KLEE baseline, and
+make it available for further inspection.
+
+Threats to external validity may derive from the selection of
+benchmarks. We validated our approach on three real-world
+subjects. Different results could be obtained for different
+subjects. The only way to further reduce the external validity threat
+consists in replicating our study on more subjects. For this reason we
+make our experimental package publicly available to other
+researchers.\footnote{http://url-omitted-for-double-blind-revision}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:

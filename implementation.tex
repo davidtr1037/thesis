@@ -1,0 +1,58 @@
+%!TEX root=./paper.tex
+
+We implemented chopped symbolic execution into \toolname, an extension
+to the KLEE symbolic execution
+engine~\cite{klee}.\footnote{http://url-omitted-for-double-blind-revision}
+We forked KLEE from commit~\code{b2f93ff}. A user can run \toolname by
+specifying the list of functions to skip along with specific call
+sites via command-line switches.
+
+\paragraph{Static Analysis} Our tool combines static analysis---in
+particular mod-ref analysis and slicing---along with symbolic
+execution. Since KLEE operates on LLVM bitcode, we rely on libraries
+that statically analyze LLVM bitcode. In particular, we implemented a
+library for static analysis that exposes APIs to KLEE, so new or
+better static analyses can be integrated in \toolname with ease.
+
+We compute \textit{mod-ref analysis} by using the pointer analysis
+provided by SVF~\cite{sui2016svf}. In particular, we rely on a
+flow-insensitive and context-insensitive pointer analysis based on the
+Andersen algorithm~\cite{andersen:pointeranalysis}. We compute static
+backward slicing using the DG static slicer~\cite{dg}. We modified the
+slicer to be able to generate slices of arbitrary functions and not
+only of the entry point of the program. Note that static slicing is
+computed on-demand, only when a recovery is required. The same slice
+may be reused for multiple recoveries, so each slice is computed only
+once.
+
+\paragraph{State Exploration} \toolname also implements its own state
+prioritization algorithm, \textit{chopped-aware search heuristic},
+which favors the execution of normal states over recovery ones as
+discussed in \S~\ref{Se:Search}. The algorithm is implemented as a
+\textit{state searcher}, an abstraction used by KLEE to encapsulate
+the state exploration logic. This implementation strategy also allows
+us to be search-heuristic agnostic, meaning that our prioritization
+strategy is compatible and can be combined with all present and future
+search heuristics of KLEE.
+
+\paragraph{Limitations} The current main limitation of \toolname is
+the handling of symbolic addresses. Handling a symbolic address in
+\toolname is not trivial, as it may refer to multiple allocation sites
+and in turn lead to the recovery of several different skipped
+functions. Moreover, symbolic addresses also increase the complexity
+of interpreting load instructions. In case of a load instruction,
+\toolname needs a concrete address to update in the dependent state
+the addresses written during recovery, as discussed in
+\S~\ref{sec:design}.
+
+Chopped symbolic execution currently focuses on skipping functions.
+However, the approach is more generic: In theory, we could skip any
+arbitrary code portion that preserves the control-flow of the
+program. We are currently working on relaxing the implementation of
+\toolname to support such feature, and on designing an appropriate API
+for specifying such arbitrary code portions.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:

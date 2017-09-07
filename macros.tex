@@ -1,355 +1,81 @@
-%!TEX root=./main.tex
+%!TEX Root=./paper.tex
 
-%%%%%%%%%%%%%%%%%%%% Authors %%%%%%%%%%%%%%%%%%%%
+\ifdefined\nocomments
+\newcommand{\showindraft}[1]{}
+\else
+\newcommand{\showindraft}[1]{#1}
+\fi
 
-\ifthenelse{\boolean{AUTHORCOMMENTS}}{
-%\newcommand{\writer}[2]{\todo[inline]{#1: #2}}
-\newcommand{\writer}[2]{\todo[inline]{#1: #2}}
-\newcommand{\mwriter}[2]{\todo{#1: #2}}
-\newcommand{\TBD}{\color{red}{TBD}\color{black}}
-}
-{
-\newcommand{\writer}[2][]{}
-\newcommand{\mwriter}[2][]{}
-\newcommand{\TBD}{}
-}
 
-\newcommand{\noam}[1]{\writer{NR}{#1}}
-\newcommand{\noamx}[1]{}
-\newcommand{\mnoam}[1]{\mwriter{NR}{#1}}
-\newcommand{\mooly}[1]{\writer{MS}{#1}}
-\newcommand{\mmooly}[1]{\mwriter{MS}{#1}}
-\newcommand{\rumster}[1]{\writer{RM}{#1}}
-\newcommand{\rumsterx}[1]{}
-\newcommand{\omer}[1]{\writer{OA}{#1}}
-\newcommand{\omerx}[1]{}
-\newcommand{\momer}[1]{\mwriter{OA}{#1}}
-\newcommand{\reword}[1]{{\color{red}REWORD}}
-
-\newcommand{\change}[2][]{\color{red}#2\color{black}}
+\newcommand{\dtx}[1]{}
+% already defined in ut-thesis.cls
 %\newcommand{\ignore}[1]{}
 
-\newcommand{\figref}[1]{Figure~\ref{Fi:#1}}
-\newcommand{\secref}[1]{Chapter~\ref{Se:#1}}
-\newcommand{\subsecref}[1]{Section~\ref{Se:#1}}
-\newcommand{\exampleref}[1]{Example~\ref{Ex:#1}}
 
-%%%%%%%%%%%%%%%%%%%% Generic %%%%%%%%%%%%%%%%%%%%
+\newcommand{\instruct}[1]{\mathsf{#1}}
+\newcommand{\caseof}[2]{\noindent \textbf{#1} #2:}
+\newcommand{\step}[1]{\textcircled{#1}\xspace}
+
+
+\newcommand{\ie}{i.e.\ }
+\newcommand{\eg}{e.g.,\ }
+\newcommand{\etal}{et al.}
+\newcommand{\vs}{vs.\ }
+\newcommand{\etc}{etc.\ }
+
+\newcommand{\toolname}{CHASER\xspace}
+
+\newcommand{\fakeparagraph}[1]{\noindent\textbf{#1.}}
+
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
 
 \newcommand{\code}[1]{\texttt{#1}}
-\newcommand{\partialto}{\rightharpoonup}
-\newcommand{\totalto}{\rightarrow}
-\newcommand{\pow}[1]{\wp(#1)}
-\newcommand{\fin}{\text{fin}}
-\newcommand{\N}{\mathbb{N}}
-\newcommand{\Z}{\mathbb{Z}}
-\newcommand{\ite}[3]{#1\ \operatorname{?}\ #2\ \operatorname{:}\ #3}
 
-\newcommand{\mypara}[2][:]{\smallskip\textit{#2#1}}
-% NR: Used pacckage MnSymbol instead of defineind \cupdot
-%
-% \makeatletter
-% \providecommand*{\cupdot}{%
-%   \mathbin{%
-%     \mathpalette\@cupdot{}%
-%   }%
-% }
-% \newcommand*{\@cupdot}[2]{%
-%   \ooalign{%
-%     $\m@th#1\cup$\cr
-%     \hidewidth$\m@th#1\cdot$\hidewidth
-%   }%
-% }
-% \makeatother
+\newcommand{\SE}{SE}
+\newcommand{\CSE}{CSE}
 
-\newcommand{\domname}[1]{\ensuremath{\text{\textit{#1}}}}
-\newcommand{\funname}[1]{\ensuremath{\text{\textrm{#1}}}}
+\algnewcommand\algorithmicforeach{\textbf{foreach}}
+\algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
 
+\newcommand{\addr}{\mathit{addr}}
+\newcommand{\as}{\mathit{as}}
 
-%%%%%%%%%%%%%%%%%%%% Paper %%%%%%%%%%%%%%%%%%%%
+\newcommand{\skipped}{\mathit{skipped}}
+\newcommand{\inst}{\mathit{inst}}
+\newcommand{\instate}{s_0}
+\newcommand{\workstate}{s}
+\newcommand{\runfunc}{\mathit{func}}
+\newcommand{\skipFunctions}{\mathit{skipFunctions}}
+\newcommand{\worklist}{\mathit{worklist}}
 
-\newcommand{\lastof}[1]{\offset{#1}{\last}}
-\newcommand{\makesymbolic}{\texttt{SE\_havoc\_contents}}
-\newcommand{\BUFSIZE}{\texttt{512}}
-\newcommand{\RNDSIZE}{\texttt{10}}
+\newcommand{\snapshot}{\mathit{snapshot}}
+\newcommand{\dependentState}{\mathit{dependentState}}
+\newcommand{\slice}{\mathit{slice}}
+\newcommand{\recoveryState}{\mathit{recoveryState}}
+\newcommand{\isRecovery}{\mathit{isRecoveryState}}
 
-\newcommand{\CC}{\text{C}}
-\newcommand{\glibc}{\code{glibc}}
-\newcommand{\usertag}{\code{\_\_user}}
+\newcommand{\gc}{\mathit{gc}}
+\newcommand{\funclist}{\mathit{funclist}}
+\newcommand{\owset}{\mathit{owset}}
 
-\newcommand{\MFor}{\textbf{foreach}}
-\newcommand{\MDo}{\textbf{do}}
-\newcommand{\MIf}{\textbf{if}}
-\newcommand{\MThen}{\textbf{then}}
-\newcommand{\MReturn}{\textbf{return}}
-\newcommand{\MEmit}{\textbf{emit}}
+\newcommand{\mtrue}{\mathit{true}}
 
-\newcommand{\CFalse}{\texttt{false}}
-\newcommand{\CRes}{\texttt{res}}
-\newcommand{\CIf}{\texttt{if}}
-\newcommand{\CHavoc}{\texttt{havoc}}
-\newcommand{\CHavocBuffer}{\texttt{havoc\_buffer}}
-\newcommand{\CAssume}{\texttt{assume}}
-\newcommand{\CWarn}{\texttt{warn}}
-\newcommand{\CRead}{\texttt{SE\_read}}
+\renewcommand*\Call[2]{\textproc{#1}(#2)}
+% New definitions
+\algrenewcommand\algorithmicindent{0.8em}
+\algnewcommand\algorithmicswitch{\textbf{switch}}
+\algnewcommand\algorithmiccase{\textbf{case}}
+\algnewcommand\algorithmicassert{\texttt{assert}}
+\algnewcommand\Assert[1]{\State \algorithmicassert(#1)}%
+% New "environments"
+\algdef{SE}[SWITCH]{Switch}{EndSwitch}[1]{\algorithmicswitch\ #1\ \algorithmicdo}{\algorithmicend\ \algorithmicswitch}%
+\algdef{SE}[CASE]{Case}{EndCase}[1]{\algorithmiccase\ #1}{\algorithmicend\ \algorithmiccase}%
+%\algtext*{EndSwitch}%
+\algtext*{EndCase}%
 
-\newcommand{\CUint}{\texttt{uint}}
-\newcommand{\CInt}{\texttt{int}}
-\newcommand{\CLong}{\texttt{long}}
-\newcommand{\CBool}{\texttt{bool}}
-
-\newcommand{\GenerateContract}{\textsc{GenerateContract}}
-\newcommand{\Constraints}[1][]{\textsc{Constraints}_{#1}}
-
-\newcommand{\AnalysisResult}{\mathit{Analysis}}
-
-\newcommand{\nondet}{*}
-\newcommand{\ptr}{\operatorname{ptr}}
-\newcommand{\havocvars}{\overline{\localiP^+\setminus\formaliP}}
-
-%%%%%%%%%%%%%% Concrete Semantics %%%%%%%%%%%%%
-\newcommand{\EdgeCmd}{\textit{ECmd}}
-\newcommand{\ttreturn}{\operatorname{\texttt{return}}}
-\newcommand{\ttstore}{\operatorname{\texttt{store}}}
-\newcommand{\ttload}{\operatorname{\texttt{load}}}
-\newcommand{\ttalloc}{\ensuremath{\operatorname{\texttt{alloc}}}}
-\newcommand{\ttcopy}{\ensuremath{\operatorname{\texttt{copy}}}}
-\newcommand{\ttassume}{\operatorname{\texttt{assume}}}
-\newcommand{\ttaccessok}{\operatorname{\texttt{access\_ok}}}
-\newcommand{\ttreadok}{\operatorname{\texttt{read\_ok}}}
-\newcommand{\ttwriteok}{\operatorname{\texttt{write\_ok}}}
-\newcommand{\ttreadnotok}{\operatorname{\texttt{read\_notok}}}
-\newcommand{\ttwritenotok}{\operatorname{\texttt{write\_notok}}}
-\newcommand{\ttaddr}[1][]{\operatorname{\texttt{\&}#1}}
-\newcommand{\ttsizeof}{\operatorname{\texttt{sizeof}}}
-\newcommand{\ttREAD}{\operatorname{\texttt{READ}}}
-\newcommand{\ttWRITE}{\operatorname{\texttt{WRITE}}}
-\newcommand{\ttimportstruct}{\operatorname{\texttt{import\_struct}}}
-\newcommand{\ttcall}{\operatorname{\texttt{call}}}
-
-
-
-% \newcommand{\AKspace}{\Abs{\Kspace}}
-% \newcommand{\AUspace}{\Abs{\Uspace_{\scriptscriptstyle UR}}}
-% \newcommand{\NReg}{\Abs{\NULL}}
-\newcommand{\AKspace}{\aregof{K}}
-\newcommand{\AUspace}{\aregof{U}}
-\newcommand{\NReg}{\aregof{N}}
-\newcommand{\CFGNodes}{N}
-\newcommand{\cfgnode}{n}
-\newcommand{\cfgedge}{e}
-\newcommand{\NULL}{\texttt{NULL}}
-\newcommand{\result}{\mathit{res}}
-
-\newcommand{\allocset}{A}
-\newcommand{\readset}{R}
-\newcommand{\writeset}{W}
-
-\newcommand{\Uspace}{\boldsymbol{U}}
-\newcommand{\Kspace}{\boldsymbol{K}}
-\newcommand{\mNULL}{\NULL}
-\newcommand{\loc}{\ell}
-% \newcommand{\LocDom}{\mathcal{L}}
-\newcommand{\env}{\mathit{env}}
-\newcommand{\LocDom}{\mathit{Loc}}
-
-% \newcommand{\RegionDom}{\mathcal{R}}
-\newcommand{\RegionDom}{\mathit{Region}}
-\newcommand{\region}{r}
-\newcommand{\regionset}{R}
-\newcommand{\regionof}[2]{r_{#1}(#2)}
-
-\newcommand{\kernelregion}{\mathit{K}}
-\newcommand{\NULLregion}{\mathit{NULL}}
-\newcommand{\offset}[2]{\mathit{offset}_{#1,#2}}  % /offset{f}{p}
-\newcommand{\baseof}[2]{\operatorname{base}_{#1}(#2)}  % /baseof{\state}{p}
-\newcommand{\offsetof}[2]{\operatorname{offset}_{#1}(#2)}  %
-
-\newcommand{\CStateDom}{\Sigma}
-\newcommand{\cstate}{\sigma}
-\newcommand{\cstateset}{X}
-
-%%%%%%%%%%%%%% Instrumented Semantics %%%%%%%%%%%%%
-\newcommand{\inst}[1]{\hat{#1}}
-\newcommand{\Spec}{\textit{spec}}
-\newcommand{\Init}{\varphi_{\textit{init}}}
-\newcommand{\Pre}{\textit{pre}}
-\newcommand{\Post}{\textit{post}}
-\newcommand{\Mod}{\textit{mod}}
-\newcommand{\Havoc}{\textsf{havoc}}
-
-\newcommand{\BC}{\textit{c}}
-\newcommand{\targetbuf}[1]{\textit{buf}_{#1}}
-
-\newcommand{\last}{\mathit{last}}
-\newcommand{\sizevar}{\mathit{sz}}
-\newcommand{\SizeVars}{\mathit{Sizes}}
-\newcommand{\sizeof}[1]{\mathit{size}_{#1}}
-\newcommand{\locaInst}{\inst{\localiP}}
-\newcommand{\VIDInst}{\inst{\VID}}
-
-\newcommand{\icmd}{\inst{\cmd}}
-\newcommand{\istate}{\delta}
-\newcommand{\ienv}{\inst{\env}}
-\newcommand{\isemp}[1]{\textsf{Inst}\semp{#1}}
-\newcommand{\isemphelper}[1]{\textsf{Inst}'\semp{#1}}
-\newcommand{\IStateDom}{\inst{\CStateDom}}
-\newcommand{\ibeta}{\inst{\beta}}
-
-%%%%%%%%%%%%%% Region Analysis %%%%%%%%%%%%%
-\newcommand{\absregion}[1][]{R_{#1}}
-
-\newcommand{\havoc}{\operatorname{havoc}}
-
-\newcommand{\localiP}{\ensuremath{\domname{ILocal}}}
-\newcommand{\localpP}{\ensuremath{\domname{PTLocal}}}
-\newcommand{\formalpP}{\ensuremath{\domname{PTFormal}}}
-\newcommand{\formaliP}{\ensuremath{\domname{IFormal}}}
-\newcommand{\locali}[1]{\ensuremath{\domname{ILocal}(#1)}}
-\newcommand{\localp}[1]{\ensuremath{\domname{PTLocal}(#1)}}
-\newcommand{\formalp}[1]{\ensuremath{\domname{IFormal}(#1)}}
-\newcommand{\formali}[1]{\ensuremath{\domname{PTLocal}(#1)}}
-\newcommand{\St}{\mathit{St}}
-\newcommand{\tteq}{\operatorname{\texttt{:=}}}
-\newcommand{\ttskip}{\texttt{skip}}
-\newcommand{\ttNULL}{\texttt{NULL}}
-
-\newcommand{\VID}{\domname{Var}}
-\newcommand{\Cmd}{\domname{Cmd}}
-\newcommand{\cmd}{\mathit{cmd}}
-\newcommand{\aexp}{\mathit{aexp}}
-\newcommand{\bexp}{\mathit{bexp}}
-
-
-
-\newcommand{\AStateDom}{\mathcal{S}}
-\newcommand{\astate}{\mathbf{s}}
-
-\newcommand{\asemp}[1]{\semp{#1}^\sharp}
-
-%\newcommand{\cstatex}[5]{\B{#1,#2,#3,#4,#5}}
-
-\newcommand{\aregof}[1]{\mathfrak{r}_{#1}}
-\newcommand{\areg}{\mathfrak{\region}}
-\newcommand{\aregset}{\mathfrak{\regionset}}
-\newcommand{\Abs}[1]{#1^{\sharp}}
-\newcommand{\ARegs}{\text{\textit{ARegs}}}%\Abs{\RegionDom}}
-\newcommand{\ABuffers}{\domname{ABuffers}}%\Abs{\RegionDom}}
-\newcommand{\UReg}{\Abs{\region}}
-
-\newcommand{\abuff}{\mathit{buff}}
-\newcommand{\ABuffs}{\Abs{\mathit{Buff}}}
-
-%\newcommand{\ptsemp}[1]{\semp{#1}^\sharp_{\PTscript}}
-%\newcommand{\zsemp}[1]{\semp{#1}^\sharp_{\Zscript}}
-%\newcommand{\osemp}[1]{\semp{#1}^\sharp_{\Offscript}}
-%\newcommand{\ptsemp}[1]{\textsf{Reg}\semp{#1}}
-
-%\newcommand{\ptset}[1][]{\mathbf{pt}_{\!#1}}
-\newcommand{\ptset}{\mathit{pt}}
-\newcommand{\ptsempv}[1]{\textsf{PTv}\semp{#1}}
-\newcommand{\ptsemp}[1]{\textsf{PT}\semp{#1}}
-\newcommand{\PTscript}{{\scriptscriptstyle \textit{PT}}}
-\newcommand{\PTDom}{\domname{PTDom}}
-\newcommand{\PTEnv}{\domname{PTEnv}}
-\newcommand{\ptbeta}{\beta_{\PTscript}}
-\newcommand{\ptgamma}{\gamma_{\PTscript}}
-\newcommand{\ptstate}{\astate_{\PTscript}}
-\newcommand{\ptbot}{\bot_{\PTscript}}
-\newcommand{\ptjoin}{\sqcup_{\PTscript}}
-\newcommand{\Ptjoin}{\Sqcup_{\PTscript}}
-\newcommand{\ptleq}{\sqsubseteq_{\PTscript}}
-\newcommand{\ptred}{\text{Red}_{\PTscript}}
-
-\newcommand{\ZDom}{\domname{ZDom}}
-\newcommand{\ZEnv}{\domname{ZEnv}}
-\newcommand{\ZStates}{\Gamma}
-\newcommand{\zbot}{\bot_{\Zscript}}
-%\newcommand{\zjoin}{\sqcup_{\mathcal{Z}}}
-\newcommand{\zleq}{\sqsubseteq_{\Zscript}}
-\newcommand{\zjoin}{\sqcup_{\Zscript}}
-\newcommand{\zwidening}{\nabla_{\Zscript}}
-\newcommand{\IntVars}{\textit{IntVars}}
-\newcommand{\zbeta}{\beta_{\Zscript}}
-\newcommand{\zalpha}{\alpha_{\Zscript}}
-\newcommand{\zgamma}{\gamma_{\Zscript}}
-\newcommand{\Zscript}{{\scriptscriptstyle \mathbb{Z}}}
-\newcommand{\instToZEnv}{\funname{InstToZEnv}}
-\newcommand{\zstate}{\mathbf{z}}
-\newcommand{\zsemp}[1]{\textsf{Z}\semp{#1}}
-
-% Combined domain macros
-\newcommand{\CombDom}{\domname{Comb}}
-\newcommand{\CombStates}{\domname{CombEnv}}
-\newcommand{\Combscript}{\scriptscriptstyle \domname{Comb}}
-\newcommand{\Combbot}{\bot_{\Combscript}}
-\newcommand{\Combleq}{\sqsubseteq_{\Combscript}}
-\newcommand{\Combjoin}{\sqcup_{\Combscript}}
-\newcommand{\Combwidening}{\nabla_{\Combscript}}
-\newcommand{\Combbeta}{\beta_{\Combscript}}
-\newcommand{\Combalpha}{\alpha_{\Combscript}}
-\newcommand{\Combgamma}{\gamma_{\Combscript}}
-\newcommand{\Combsemp}[1]{\semp{#1}^{\#}}
-
-\newcommand{\nscript}{{\scriptscriptstyle \textsf{Num}}}
-\newcommand{\nbeta}{\beta_{\nscript}}
-\newcommand{\ngamma}{\gamma_{\nscript}}
-
-\newcommand{\Red}{\operatorname{Red}}
-
-\newcommand{\ptmeet}{\sqcap_{\PTscript}}
-\newcommand{\rbeta}{\beta_{\Rscript}}
-\newcommand{\osemp}[1]{\textsf{Off}\semp{#1}}
-\newcommand{\zmeet}{\sqcap_{\Zscript}}
-\newcommand{\ajoin}{\sqcup}
-\newcommand{\ameet}{\sqcap}
-
-\newcommand{\Offscript}{{\scriptscriptstyle \domname{Off}}}
-
-\newcommand{\Rscript}{{\scriptscriptstyle \mathbb{R}}}
-\newcommand{\Iscript}{{\scriptscriptstyle \mathbb{I}}}
-%\astate_{\Zscript}}
-\newcommand{\cnstate}{s_{\Zscript}}
-\newcommand{\NDom}{\AStateDom_{\Zscript}}
-\newcommand{\avar}{\iota}
-\newcommand{\AVars}{\domname{IVar}}
-\newcommand{\accvar}[2]{\funname{max}_{#1,#2}} %\accvar{n}{f}
-\newcommand{\ACCVars}{\domname{AVar}}
-\newcommand{\AOffset}{\domname{Offset}}
-\newcommand{\AAccess}{\domname{A}}
-\newcommand{\off}{o}
-\newcommand{\accv}{a}
-\newcommand{\CFGNodeAccessOK}{\CFGNodes_{OK}}
-
-% \newcommand{\zstate}[1][]{\mathit{PT}_{\!#1}}
-% \newcommand{\PTDom}{\mathcal{PT}}
-% \newcommand{\offset}[2]{\mathit{offset}_{#1}^{#2}}
-
-\newcommand{\ptsetset}{X}
-
-\newcommand{\oalpha}{\alpha_{\Offscript}}
-\newcommand{\ptalpha}{\alpha_{\PTscript}}
-
-\newcommand{\obeta}{\beta_{\Offscript}}
-
-\newcommand{\alphafirst}{\alpha_1}
-\newcommand{\alphasecond}{\alpha_2}
-
-
-\newcommand{\firstjoin}{\sqcup_1}
-\newcommand{\firstmeet}{\sqcap_1}
-
-\newcommand{\gammafirst}{\gamma_1}
-\newcommand{\gammasecond}{\gamma_2}
-
-\newcommand{\aenv}{\rho}
-\newcommand{\aenvset}{E}
-\newcommand{\renvset}{R}
-\newcommand{\aenvi}{\rho_{\Offscript}}
-\newcommand{\aenvp}{\rho_{\Rscript}}
-\newcommand{\AEnv}{\domname{AEnv}}
-
-\newcommand{\ptConstraints}{\Constraints[\PTscript]}
-\newcommand{\zConstraints}{\Constraints[\Zscript]}
-
-\newcommand{\basevar}[1]{\funname{base}_{#1}}
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:

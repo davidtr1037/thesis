@@ -1,0 +1,197 @@
+%!TEX root=./paper.tex
+
+Symbolic execution lies at the core of many modern techniques to
+software testing, automatic program repair, and reverse
+engineering~\cite{dart,cute,klee,semfix,chipounov2010reverse,JPF-SE}. At
+a high-level, symbolic execution systematically explores multiple
+paths in a program by running the code with symbolic values instead of
+concrete ones. Symbolic execution engines thus replace concrete
+program operations with ones that manipulate symbols, and add
+appropriate constraints on the symbolic values. In particular,
+whenever the symbolic executor reaches a branch condition that depends
+on the symbolic inputs, it determines the feasibility of both sides of
+the branch, and creates two new independent \emph{symbolic states}
+which are added to a worklist to follow each feasible side
+separately. This process, referred to as \emph{forking}, refines the
+conditions on the symbolic values by adding appropriate constraints on
+each path according to the conditions on the branch, in what is
+referred to as the \textit{path condition}.  Test cases are generated
+by finding concrete values for the symbolic inputs that satisfy the
+path conditions.  To both determine the feasibility of path conditions
+and generate concrete solutions to the path conditions, symbolic
+execution engines employ \emph{satisfiability-modulo theory} (SMT)
+constraint solvers~\cite{smt:cacm11}.
+
+\paragraph{The Challenge}
+Symbolic execution has proven to be effective at finding subtle bugs
+in a variety of software~\cite{klee,exe,JPF-SE,pex,sage}, and has
+started to see industrial
+take-up~\cite{symex-impact-11,sage,mayhem12}. However, a key remaining
+challenge is scalability, particularly related to constraint solving
+cost and path explosion~\cite{symex:cacm}.
+
+Symbolic execution engines issue a huge number of queries to the
+constraint solver that are often large and complex when analyzing
+real-world programs. As a result, constraint solving dominates runtime
+for the majority of non-trivial
+programs~\cite{klee-multisolver,incremental-smt:hvc14}. Recent
+research has tackled the challenge by proposing several constraint
+solving optimizations that can help reduce constraint solving
+cost~\cite{exe,cute,constraint-opt:cstva11,memoized:symex,
+  green,greentrie,recal,klee-multisolver,klee-array}.
+
+Path explosion represents the other big challenge facing symbolic
+execution, and the main focus of this paper.  Path explosion refers to
+the challenge of navigating the huge number of paths in real programs,
+which is usually at least exponential in the number of static branches
+in the code. The common mechanism employed by symbolic executors to
+deal with this problem is the use of search heuristics to prioritize
+path exploration. One particularly effective heuristic focuses on
+achieving high statement and branch coverage by guiding the
+exploration towards the path closest to uncovered
+instructions~\cite{exe,klee,sen:concolicheuristics,fitsymex:dsn09}.
+In practice, these heuristics only partially alleviate the path
+explosion problem, as the following example demonstrates.
+
+\paragraph{Motivating Example.}
+The \texttt{extract\_octet()} function, shown in
+\Cref{fig:intro-example}, is a simplified version of a function from
+the \texttt{libtasn1} library which parses ASN.1 encoding
+rules from an input string.\footnote{https://www.gnu.org/software/
+  libtasn1} The ASN.1 protocol is used in many networking and
+cryptographic applications, such as those handling public key
+certificates and electronic mail.  Versions of \texttt{libtasn1} before
+4.5 are affected by a heap-overflow security vulnerability that could
+be exploited via a crafted
+certificate.\footnote{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3622.}
+Unfortunately, given a time budget of 24 hours, the analysis of the
+\texttt{extract\_octet()} function using the state-of-the-art symbolic
+execution engine KLEE~\cite{klee} fails to identify the vulnerability
+due to path explosion.
+
+At each loop iteration
+(lines~\ref{line:loop_begin}--\ref{line:loop_end}), the function
+decodes the current data element with \texttt{get\_length}
+(line~\ref{line:heap_overflow}). Function \texttt{get\_length} scans
+through the input string and decodes the ASN.1 fields. Then, the
+execution either recursively iterates over the input string
+(line~\ref{line:recursion}), or invokes \texttt{append\_value}
+(line~\ref{line:append}). Function \texttt{append\_value} creates the
+actual node in the Abstract Syntax Tree (AST) by decoding the input
+string given the obtained length. This function scans once more over
+the input string, performs several checks over the selected element,
+and allocates memory for the node in the recursive data structure.
+
+Path explosion in this function occurs due to several nested function
+calls. Symbolically executing function \texttt{get\_length} alone with
+a symbolic string of \textit{n} characters leads to $4*n$ different
+paths. Function \texttt{append\_value} increases even more the number
+of paths and also affects the efficiency of the symbolic execution
+engine due to a huge number of constraint solver invocations. As a
+result, the symbolic executor fails to identify the heap-overflow
+vulnerability at line~\ref{line:heap_overflow}.
+
+\begin{figure}[tbp]
+\begin{lstlisting}[linewidth=.99\columnwidth]
+int extract_octet(asn_t asn, char *str, int str_len) {
+ int len3, counter, counter_end, result;
+ int len2 = get_length(str, str_len, &len3); /*@ \label{line:get_length} @*/
+ counter = len3+1;
+ counter_end = str_len;
+ while (counter < counter_end) { /*@ \label{line:loop_begin} @*/
+    // call to get_length() leads to a heap overflow:
+    // str_len should have been decremented by (len3 + 1)
+    len2 = get_length(str+counter, str_len, &len3); /*@ \label{line:heap_overflow} @*/
+
+    if (len2 >= 0) {
+      DECR_LEN(str_len, len2+len3);
+      append_value(asn, str+counter+len3, len2); /*@ \label{line:append} @*/
+    } else {
+      DECR_LEN(str_len, len3);
+      result = extract_octet(asn, str+counter+len3, str_len); /*@  \label{line:recursion} @*/
+      if (result != SUCCESS)
+        return result;
+      len2 = 0;
+    }
+    DECR_LEN(str_len, 1);        /*@ \label{line:bug} @*/
+    counter += len2+len3+1;
+  }                             /*@ \label{line:loop_end} @*/
+  return SUCCESS;
+}
+\end{lstlisting}\vspace{-3mm}
+\caption{A simplified excerpt from the \texttt{extract\_octet} routine
+  in \texttt{libtasn1}. The invocation of \texttt{get\_length()} in
+  line~\ref{line:get_length} leads to a heap overflow because
+  \texttt{str\_len} has not been decremented before the call.}
+\label{fig:intro-example}\vspace{-5mm}
+\end{figure}
+
+\paragraph{Our Approach}
+Identifying the vulnerability from the entry point of the library is
+not trivial: To reach the faulty invocation of function \code{get\_length},
+symbolic execution requires to analyze at the very least 2,945 calls
+to 98 different functions, for a total amount of 386,727 executable
+instructions. Our key observation is that most of the functions
+required during the execution are \textit{not relevant} for finding
+the vulnerability. The vulnerability occurs due to an incorrect update
+of the remaining bytes for parsing (line~\ref{line:bug}), which
+results in a memory out-of-bound read when calling
+\texttt{get\_length}. The bug thus occurs in code which deals with the
+parsing, which is independent from the functions that constructs the
+corresponding ASN.1 representation, such as \texttt{append\_value}.
+Therefore, we could have reached the bug even if we had \emph{skipped}
+the irrelevant functions that build the AST.
+
+In this paper, we propose a novel form of symbolic execution called
+\emph{chopped symbolic execution} that provides the ability to specify
+parts of the code to exclude during the analysis, thus enabling
+symbolic execution to focus on significant paths only. The skipped
+code is not trivially excluded from symbolic execution, since this may
+lead to spurious results. Instead, chopped symbolic execution lazily
+executes the relevant parts of the excluded code when explicitly
+required. In this way, chopped symbolic execution does not sacrifice
+the soundness guarantees provided by standard symbolic
+execution---except for non-termination of the skipped functions, which
+may be considered a bug on its own---in that only feasible paths are
+explored, but effectively discards paths irrelevant to the task at
+hand.
+
+We develop a prototype implementation of chopped symbolic
+execution. We then report the results of an initial experimental
+evaluation that demonstrates that this technique can indeed lead to
+efficient and effective exploration of the code under analysis.
+
+\paragraph{Main Results}
+In summary, in this paper we make the following contributions:
+\begin{enumerate}[leftmargin=*]
+\item We introduce \emph{chopped symbolic execution}, a novel form of
+  symbolic execution that leverages a lightweight specification of
+  uninteresting code parts to significantly improve the scalability of
+  symbolic execution, without sacrificing soundness.
+
+\item We present \toolname, a prototype implementation of our
+  technique within KLEE~\cite{klee}, and make it publicly available.
+
+\item We report on an experimental evaluation of \toolname in two
+  different scenarios: failure reproduction and test suite
+  augmentation, and show that chopped symbolic execution can
+  effectively improve upon standard symbolic execution in both cases.
+\end{enumerate}
+
+This paper is organized as follows. Section~\ref{sec:overview} gives a
+high-level overview of chopped symbolic execution, and
+Section~\Cref{sec:design} presents our technique in detail.
+Section~\ref{sec:implementation} briefly discusses our implementation
+inside the KLEE symbolic execution
+engine. Section~\ref{sec:evaluation} presents the experimental
+evaluation of our technique, and in particular it shows that chopped
+symbolic execution can overcome the limitations of state-of-the-art
+symbolic executors. Section~\ref{sec:related} surveys the main
+approaches related to this work. Section~\ref{sec:conclusion}
+summarizes the contributions of the paper and describes ongoing
+research work.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:
