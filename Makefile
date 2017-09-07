@@ -7,5 +7,5 @@ thesis.pdf : $(shell ls *.tex bib_files/*.bib)
 	pdflatex thesis
 
 clean:
-	rm -f *.pdf *.aux *.blg *.log *.bbl *.out
+	rm -f *.pdf *.aux *.blg *.log *.bbl *.out *.toc *.idx
 
