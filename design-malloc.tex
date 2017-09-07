@@ -1,0 +1,32 @@
+%!TEX root=./paper.tex
+
+\subsection{Memory allocations}
+\label{Se:Malloc}
+
+Let us consider the example from
+Figure~\ref{fig:slices-with-allocations}, where the skipped function
+\code{f} allocates memory with \code{malloc}. After skipping the
+function call at line~\ref{line:alloc_skip}, the chopped symbolic
+execution encounters two dependent loads at
+lines~\ref{line:alloc_first} and \ref{line:alloc_second}. Chopped
+symbolic execution thus spawns two consecutive recovery states: one in
+which executes only line~\ref{line:slice_1}, and one in which executes lines~\ref{line:slice_1} and
+lines~\ref{line:slice_2}. If we allowed \code{malloc} to return two different addresses while
+executing the recovery states, this may lead to undefined behavior
+since the second recovery would write to a different memory
+address. To prevent this, and maintain consistency across recovery
+states originating from the same function call, we maintain a list of
+returned addresses for each allocation site in \code{f} which are
+identified by their call stack. This way, subsequent recovery states
+will use this information while re-executing allocating instructions.
+
+\begin{figure}[tbp]
+  \lstinputlisting[linewidth=.95\columnwidth]{code/allocations.c}\vspace{-2mm}
+  \caption{Example of skipped function with allocation.}\vspace{-4mm}
+\label{fig:slices-with-allocations}
+\end{figure}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:

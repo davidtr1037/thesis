@@ -1,0 +1,17 @@
+%!TEX root=./paper.tex
+
+\subsection{Slice selection}\label{Se:Slicing}
+
+Recall from the overview that ...
+
+More formally, let $MR_{f,l}$ be the intersection of the points-to set
+of $l$ with $M^{*}_f$.  Then, we construct the set of all store
+instructions in $R_f$ whose points-to sets intersect with $MR_{f,l}$.
+This set of store instructions is then the input to a standard
+static slicing algorithm which will slice the functions in $R_f$ with
+respect to this set (\ie the algorithm will remove any statements from
+$R_f$ which are unrelated to these store instructions).
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:

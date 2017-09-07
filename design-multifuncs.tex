@@ -1,0 +1,42 @@
+%!TEX root=./paper.tex
+
+\subsection{Handling Multiple Skipped Functions}
+\label{Se:SkipMultipleFuncs}
+So far, we have assumed that every symbolic state has a single skipped
+invocation. When we have multiple invocations that can be skipped, we
+then need to decide which functions to use for recovery and in which
+order, in the case multiple invocations modify the dependent load
+address $\addr$. We solve this issue by executing the skipped
+invocations according to their order along the path, thus ensuring
+that the value stored in $\addr$ at the end of the recovery process is
+indeed the last value written there along the chopped path.
+
+Another issue that we need to address to support multiple skipped
+functions is that a skipped invocation might depend on the side
+effects of an earlier skipped functions. When this happens, we apply
+our recovery approach in a recursive manner, and treat the current
+recovery state as a \emph{dependent} state. For example, consider the
+code in Figure~\ref{fig:multiple-skipped-functions}. When the
+execution reaches the dependent load at line~13, we create a recovery
+state for $\code{f}_2$, since $\code{f}_1$ does not modify the field
+$x$.  When the created recovery state reaches the load instruction at
+line~6, it identifies it as a dependent load. Chopped symbolic
+execution then creates another recovery state which executes $f_1$.
+Once the recovery of $f_1$ is terminated, we can continue with the
+recovery of $f_2$.
+
+To make the symbolic execution more efficient in these cases, we
+maintain for each state a cache which records the recovery states
+which were actually relevant for any given load. By doing this, we can
+avoid redundant recovery executions.
+
+\begin{figure}[tbp]
+\lstinputlisting[linewidth=.95\columnwidth]{code/multiple-skipped.c}
+\caption{Multiple skipped functions.}\vspace{-5mm}
+\label{fig:multiple-skipped-functions}
+\end{figure}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:

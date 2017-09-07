@@ -1,0 +1,99 @@
+%!TEX root=./paper.tex
+
+\subsection{Static Inference of Function Side-Effects}
+\label{Se:MayMod}
+\label{Se:IdentifyingLoads}
+
+The auxiliary function $\Call{mayMod}{ \workstate, \funclist, \addr }$
+receives as parameters a symbolic state $\workstate$, a list of
+skipped invocations $\funclist$, and an address $\addr$ which is the
+target of a $\instruct{Load}$ instruction, and determines whether one
+of the skipped function in $\funclist$ may store a value in $\addr$.
+The function makes this decision using a \emph{points-to} graph
+computed by a preliminary stage of pointer
+analysis~\cite{Hind:Paste2001, Smaragdakis:FTPL2015}.
+
+More specifically, we perform a whole program flow-insensitive,
+context-insensitive, and field-sensitive points-to analysis which
+determines, in a conservative way, the memory location each pointer
+variable may point-to. In this analysis, memory locations are
+conservatively abstracted using their \emph{allocation sites}: Every
+definition of a local or a global variable is considered to be an
+allocation site, as well as every program point in which memory is
+allocated. For example, if the program contains
+$\code{while (..) do L: p=malloc(4)}$ then we represent all the memory
+locations allocated in $L$ by a single allocation site
+$\mathit{AS}_L$.  We then say that $\code{p}$ may point to allocation
+site $\mathit{AS}_L$, and if the program contains $\code{p=q}$, we say
+the same about $\code{q}$. The nodes of the points-to graph of a
+program are the variable names and allocation sites, and its edges
+represent \emph{points-to relations}: An edge from node $v$ to $w$
+means that the memory location represented by $v$ may hold a pointer
+to $w$.
+
+The points-to graph, which is computed once for every program,
+conservatively represents all the possible points-to relation in any
+possible program execution. Using the points-to graph, we use a
+standard \emph{may-mod} analysis (see, e.g.,~\cite{dragon-book}), in
+which we find the side effects of every function $f$, \ie the set of
+possible locations, represented by their allocation sites, that the
+function itself or any function that it may (transitively) invoke, may
+modify.
+
+During the chopped symbolic execution, we instrument the symbolic
+state to record the allocation site of every memory location. This
+instrumentation, together with the program points-to graph, allows
+\textsc{mayMod} to determine whether a skipped function may write to a
+given address. Recall that the pointer analysis is flow-insensitive,
+and thus it might record that a skipped function might modify a
+location which is updated later on in the symbolic execution.  More
+specifically, a $\instruct{load}$ instruction from address $\addr$ is
+\emph{dependent on an invocation of a skipped function} if and only
+if: (1)~$\addr$ is among the locations that \textit{may} be modified
+by the skipped function (according to the may-mod analysis), and
+(2)~no stores to that location happened between the skipped invocation
+function and the load. In particular, when the second condition
+doesn't hold, no recovery is needed as the stores performed by the
+skipped function are irrelevant. $\Call{mayMod}$ utilizes the
+information gathered during the symbolic execution regarding
+overwritten locations to refine on-the-fly the detection of the
+\emph{relevant} side effects of skipped functions.
+
+\subsection{Multiple Recovery States}
+\label{Se:MultiRecovery}
+In some cases, we need to create several recovery states during a
+single chopped symbolic execution.
+
+For example, consider the following code fragment which modifies the
+body of the \code{main()} function in Figure~\ref{fig:simple}:
+\[
+\code{f(\&p,k); if (p.x) \{ p.z++; \} if (p.y) \{ p.z--; \}}
+\]
+If we wish to skip the invocation to $\code{f}()$ then a recovery
+state and a dependent state are created every time the condition of
+the branch needs to be evaluated. Note that the second dependent state
+is produced from the first dependent one and that the resumed state
+encapsulates the changes made by the first recovery state. Assume that
+these changes involve a modification of the value of $\code{p.x}$
+inside the $k>0$ branch at line~\ref{line:px_write}. If the symbolic
+execution of the second recovery state goes through the path in which
+$\code{p.y}$ is updated ($k\le0$), the induced combined execution
+would be infeasible. To avoid this undesirable situation, when a
+recovery state terminates, it adds the new constraints accumulated in
+its path condition to the \textit{guiding constraints} of its dependent state. The added
+constraints are then used in subsequent recovery states. In our
+example in Figure~\ref{fig:simple}, the constraint $k > 0$ is
+propagated from the first recovery state to the first dependent state,
+thus ensuring that the symbolic execution of the second recovery state
+does not follow an infeasible path.
+
+\input{design-multifuncs}
+
+\input{design-malloc}
+
+\input{design-search}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:

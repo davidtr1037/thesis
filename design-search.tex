@@ -1,0 +1,38 @@
+%!TEX root=./paper.tex
+
+\subsection{Chopping-Aware Search Heuristics}
+\label{Se:Search}
+
+Search heuristics are the main approach to reduce path explosion and
+steer symbolic execution to uncovered paths for a more effective
+exploration~\cite{exe,klee,sen:concolicheuristics,fitsymex:dsn09}, and
+chopped symbolic execution is no exception. However, these heuristics
+do not take into account the particular nature of the states in
+chopped symbolic execution, that is the distinction between normal and
+recovery states.
+
+We propose a \textit{chopping-aware} search heuristic, which attempts
+to optimize the exploration of chopped symbolic execution, while
+aiming to a faster recovery of side effects. The heuristic's behavior
+crucially depends on the current state being executed. Under normal
+conditions---that is while symbolically executing normal states---the
+search heuristic favors the selection of normal states at the next
+steps. The rationale is that we want to favor paths that do not
+require any recovery, thus fostering code exploration.
+
+Instead, when chopped symbolic execution is executing a recovery
+state, the search heuristic only selects the recovery states involved
+in the recovery process. In this case, we want to favor a fast
+recovery of the side effects needed by the dependent state. As soon as
+the recovery state terminates, the search heuristic will switch to the
+normal behavior.
+
+Since always favoring normal states over recovery states may lead to
+saturation in code exploration, we allow the searcher to select at a
+lower probability a recovery state even under normal execution
+conditions.
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% End:
