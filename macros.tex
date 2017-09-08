@@ -14,8 +14,7 @@
 
 \newcommand{\instruct}[1]{\mathsf{#1}}
 \newcommand{\caseof}[2]{\noindent \textbf{#1} #2:}
-\newcommand{\step}[1]{\textcircled{#1}\xspace}
-
+\newcommand*\step[1]{\tikz[baseline=(char.base)]{\node[shape=circle,draw,inner sep=0.8pt] (char) {#1};}}
 
 \newcommand{\ie}{i.e.\ }
 \newcommand{\eg}{e.g.,\ }
