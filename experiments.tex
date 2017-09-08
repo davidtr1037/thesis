@@ -69,9 +69,7 @@ out-of-bounds accesses.  Note that each vulnerability requires the
 reproduction of a single failure, except for CVE-2014-3467, for which
 the vulnerability can be exploited in three different code locations,
 so we consider three different failures.  Therefore, in this
-experiment we aim to reproduce a total of six failures.
-
-\input{tables/result-vulnerability.tex}
+experiment we aim to reproduce a total of 6 failures.
 
 \subsection{Methodology}
 We proceed with the following evaluation process:
@@ -164,6 +162,8 @@ slicing were more expensive than directly analyzing the functions. We
 plan to develop a lightweight analysis to speculatively identify when
 to apply slicing on the skipped functions.
 
+\input{tables/result-vulnerability.tex}
+
 \section{Test Suite Augmentation}
 \label{sec:code-cover-impr}
 In this experiment we use chopped symbolic execution for test suite
@@ -210,8 +210,6 @@ We proceed with the following evaluation process:
   heuristic and a time limit of one hour.
 \end{enumerate}
 
-\input{tables/result-augmentation.tex}
-
 \subsection{Results}
 Table~\ref{tab:experiments-table-augmentation} summarizes the results
 of our test suite augmentation experiment. For each case study we
@@ -252,6 +250,8 @@ As for the previous experiment, the benefit of slicing strictly depend
 on the case study. In this experiment, slicing is not beneficial in
 \textsf{LibYAML}, while it contributes to increase coverage on
 \textsf{BC}.
+
+\input{tables/result-augmentation.tex}
 
 \section{Threats to Validity}
 Here we briefly discuss the countermeasures we adopted to mitigate the
