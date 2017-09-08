@@ -1,4 +1,8 @@
-struct point { int x, y, z;};
+struct point {
+    int x;
+    int y;
+    int z;
+};
 
 int main() { /*@ \label{line:main_enter} @*/
     struct point p = {0, 0, 0};
@@ -10,5 +14,6 @@ int main() { /*@ \label{line:main_enter} @*/
           bug();
     else
        allgood();      
+
     return 0;
 }
