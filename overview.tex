@@ -21,15 +21,15 @@ With a snapshot created, we then continue the execution on the current
 state, but from this point we must consider that some load
 instructions may depend on the \textit{side effects} of the skipped
 function~$\code{f}$, \ie the memory locations that $\code{f}$ may
-update. In our example, the side effects of $\code{f}$ are the memory
+update. 
+We compute the side effects of $\code{f}$ using conservative static
+\emph{pointer analysis}~\cite{andersen:pointeranalysis, Hind:Paste2001, Smaragdakis:FTPL2015} 
+before the symbolic exploration starts, see~\S\ref{chapter:design}.
+In our example, the side effects of $\code{f}$ are the memory
 locations pointed to by \code{p.x} and \code{p.y}, which are updated
 at lines~\ref{line:px_write} and \ref{line:py_write}, respectively.
-(We compute the side effects of $\code{f}$ using conservative static
-\emph{pointer analysis}~\cite{andersen:pointeranalysis,
-  Hind:Paste2001, Smaragdakis:FTPL2015} before the symbolic
-exploration starts, see~\S\ref{chapter:design}.) We define those
-instructions that read from the side effects of the skipped functions
-as \textit{dependent loads}.
+We define the load instructions that read from memory locations 
+which may be updated by skipped functions as \textit{dependent loads}.
 
 On some paths, symbolic execution does not encounter such
 \textit{dependent loads}. For example, the path following the
@@ -70,9 +70,8 @@ the dependent state is terminated.
 When we execute a recovery state, not all paths might be compatible
 with the execution which the dependent state reached. For example, if
 line~\ref{line:if_j} were changed from \code{if (j>0)} to \code{if
-  (k>0)}, then the dependent state would have $k>0$ in its path
-condition, rendering the dependent state incompatible with the path in
-$\code{f}$ where $k\le0$.
+  (k>0)}, then the dependent state would have $k>0$ in its path condition, 
+which makes the path in $\code{f}$ where $k \le 0$ incompatible.
 
 One way to filter such incompatible paths would be to execute all
 possible paths thorough $\code{f}$ during recovery, and later filter
@@ -118,15 +117,18 @@ Figure~\ref{fig:simple-fig} shows how chopped symbolic execution works
 on our example in a graphical way. To recapitulate, when the call to
 $\code{f}$ is reached at line~\ref{line:call_f}, a snapshot state is
 created by cloning the current state (step~\step{1} in the figure).
-Then, on the execution execution state that reaches
+Then, on the execution state that reaches
 line~\ref{line:if_py}, the current state becomes a dependent state and
-is suspended (step~\step{2}), and a recovery state is created by
-cloning the snapshot state and adding the guiding constraints from the
-dependent state (step~\step{3}). At this point, function $f$ is
-statically sliced with respect to the dependent load, in our case
-removing the first \textit{if} statement and the \textit{then} slide
+is suspended (step~\step{2}).
+A recovery state is created by cloning the snapshot state
+and the guiding constraints from the dependent state are added
+to the path condition of the newly created recovery state (step~\step{3}).
+At this point, function $f$ is statically sliced
+where the \textit{slicing criterion} is all the store instructions
+which may update \code{p->y} (more specifically, the store at line~\ref{line:py_write}).
+In our case, the slicer removes the first \textit{if} statement and the \textit{then} side
 of the second \textit{if} statement. Then, the recovery state starts
-symbolically running the sliced version of $\code{f}$.  When execution
+symbolically executing the sliced version of $\code{f}$.  When execution
 is forked at line~\ref{line:if_k}, then the dependent state is also
 forked along the same constraints (steps~\step{4} and \step{5}). One
 of the forked recovery states (Recovery') updates the location
