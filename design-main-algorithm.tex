@@ -3,19 +3,38 @@
 
 \section{Main Algorithm}
 
-\input{cse-alg}
+%\input{cse-alg}
 
 \Cref{fig:chopped-symbexe} presents the key steps in chopped
 symbolic execution, which we gradually explain. The algorithm operates
 on a simple imperative C-like heap-manipulating language with
 assignments, assertions, conditional jumps, dynamic memory allocation
 and reclamation, and function calls with call-by-value parameter
-passing.\footnote{In practice, our algorithm operates on LLVM
-  bitcode~\cite{llvm}.}  Functions may have pointer parameters. Thus,
-without loss of generality, we assume that functions do not have a
-return value.\footnote{A function with a return value can always be
-  rewritten with an additional parameter that points to the memory
-  location of the return value.}  To simplify the explanation, we now
+passing.
+Note that in practice, our algorithm operates on LLVM bitcode~\cite{llvm}.
+The function parameters can be of any type: primitives, structs, poitner, \etc
+Without loss of generality, we assume that functions do not have a return value.
+A function with a return value can always be rewritten with an additional parameter 
+that points to the memory location of the return value.
+For example, the function in figure~\ref{fig:ret2void-original-f}
+will be rewritten to the function in figure~\ref{fig:ret2void-rewritten-f}.
+\begin{figure*}[t]
+  \centering
+  \subfloat[]{
+    \lstinputlisting[linewidth=.4\textwidth,numbers=none]{code/ret2void-1.c}
+    \label{fig:ret2void-original-f}
+  }
+  
+  \subfloat[]{
+    \lstinputlisting[linewidth=.4\textwidth,numbers=none]{code/ret2void-2.c}
+    \label{fig:ret2void-rewritten-f}
+  }
+
+  \caption{Reduction to a void-returning function}
+  \label{fig:simple}
+\end{figure*}
+
+To simplify the explanation, we now
 assume that we may skip at most one function invocation at every
 explored path, and discuss the general case in
 \S\ref{Se:SkipMultipleFuncs}. For the same reason, we also assume that
@@ -26,9 +45,8 @@ Chopped symbolic execution begins by invoking procedure $\textsc{cse}$
 with an \emph{initial symbolic state} ($\instate$) and a set
 containing the names of the functions that the user wishes to skip
 ($\skipFunctions$). We expect a symbolic state $\workstate$ to encode,
-among other properties, the next instruction to be executed (denoted
-by $\Call{instruction}{\workstate}$), the activation record stack, and
-a (symbolic) description of the program \emph{heap}. For example, the
+among other properties, the next instruction to be executed, the activation record stack,
+and a symbolic description of the program \emph{heap}. For example, the
 chopped symbolic execution described in \Cref{chapter:overview} begins
 with $\instate$ in which the stack contains only the activation record
 of $\code{main}$, with the program counter at
@@ -42,11 +60,12 @@ worklist is empty (\cref{alg:iterate-worklist}), or the algorithm
 exhausts the time budget (elided). As usual, the algorithm pops the
 symbolic state $\workstate$ to explore out of the worklist
 (\cref{alg:pop-worklist}). Unconventionally, however, we assume that
-the selected state is not suspended, as suspended states are blocked
-until the value of the depended load is resolved (see
-\S\ref{chapter:overview}).\footnote{For simplicity, we defer the
-  discussion regarding the search heuristics to \S\ref{Se:Search}, and
-  assume, for now, that any unsuspended state can be returned.}  The
+the selected state is not suspended, since a suspended state is ignored by the execution engine
+until it's corresponding recovery state terminates
+and the value of the depended load is resolved (see \S\ref{chapter:overview}).
+\footnote{For simplicity, we defer the
+discussion regarding the search heuristics to \S\ref{Se:Search}, and
+assume, for now, that any unsuspended state can be returned.}  The
 next step of the algorithm depends on the instruction type
 (\cref{alg:switch}).
 
@@ -59,29 +78,35 @@ algorithm determines the name $f$ of the invoked function
 (\cref{alg:call-find-target}). Then, if $f$ is one of the skipped
 functions, the algorithm creates a snapshot of the current state
 $\workstate$ and advances the program counter in $\workstate$
-(\cref{alg:take-snapshot}); records the $\snapshot$ state at the end
-of its list of \emph{skipped invocations}
-(\cref{alg:record-snapshot}); and returns $\workstate$ to the worklist
-(\cref{alg:push-worklist-call}). A skipped invocation is represented
+without executing the skipped function (\cref{alg:take-snapshot}).
+The newly created $\snapshot$ state is added to the end of its list 
+of \emph{skipped invocations} (\cref{alg:record-snapshot}),
+and $\workstate$ is returned to the worklist
+(\cref{alg:push-worklist-call}).
+A skipped invocation is represented
 as a triple $(f,\snapshot,\owset)$ composed of the name of a skipped
 function $f$, a $snapshot$ of the symbolic state at the time $f$ was
 skipped, and a set of the addresses $\owset$ subsequently overwritten
 (initially empty).
+If at some point we will need to recover some of the side effects
+of the skipped function, the recovery state will be created
+by cloning the $\snapshot$ state.
 
-Conversely, if $f$ should not be skipped, the algorithm handles its
+Conversely, if $f$ is not be skipped, the algorithm handles its
 invocation as usual in symbolic execution.  For brevity, we elide the
 standard handling of commands by symbolic execution.
 
 \subsection{\text{Handling \textit{Load} Instructions}}
-%{(lines~\ref{alg:caseload-begin}--\ref{alg:caseload-end})}
-
-Chopped symbolic execution utilizes
-$\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$, shown in
+A $\instruct{Call}$ instruction is handled
+at lines {(lines~\ref{alg:caseload-begin}--\ref{alg:caseload-end})}.
+The algorithm utilizes
+$\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$, as shown in
 \Cref{fig:aux-func-may-mod} and explained in
 \S\ref{Se:IdentifyingLoads}, to determine whether the address from
 which a value is read ($\addr$) might have been modified by one of the
 skipped functions on the path followed by the current state
-$\workstate$. If so, the algorithm generates recovery states by
+$\workstate$.
+If so, the algorithm creates a recovery state by
 calling $\Call{recover}{\workstate,\addr}$.  Otherwise, the
 $\instruct{Load}$ instruction is handled as usual in symbolic
 execution (\cref{alg:load-normal}).
