@@ -73,16 +73,17 @@
 \Function{handleBranch}{$\workstate, \inst$}
 \If{$\workstate.\isRecovery$} \label{alg:branch-check-recovery}
   \State $\varphi = \Call{condition}{\inst}$  \label{alg:branch-get-cond}
-  \State $\dependentState \gets  \Call{getDependent}{\workstate}$ \label{alg:extract-dependent}
-  \State $\workstate'' \gets \Call{fork}{\workstate,\varphi }$ \label{alg:branch-fork-true1}
-  \State $\dependentState'' \gets \Call{fork}{\dependentState,\varphi }$ \label{alg:branch-fork-true2}
-  \If{$\Call{feasible}{\workstate''} \land \Call{feasible}{\dependentState''}$} \label{alg:branch-feasible-true}
-    \State $\worklist  \gets  \worklist  \cup \{\workstate'', \dependentState''\}$ \label{alg:push-worklist-true-branch}
+  \State $\dependentState \gets  \Call{getDependentState}{\workstate}$ \label{alg:get-dependent}
+  \If{$\Call{feasible}{\workstate, \varphi}$} \label{alg:branch-feasible-true}
+    \State $\Call{addPathCondition}{\workstate, \varphi}$ \label{alg:add-pc-true-recS}
+    \State $\Call{addPathCondition}{\dependentState, \varphi}$ \label{alg:add-pc-true-depS}
   \EndIf
-  \State $\workstate' \gets \Call{fork}{\workstate, \neg\varphi}$ \label{alg:branch-fork-false1}
-  \State $\dependentState' \gets \Call{fork}{\dependentState, \neg\varphi}$ \label{alg:branch-fork-false2}
-  \If{$\Call{feasible}{\workstate'} \land \Call{feasible}{\dependentState'}$}  \label{alg:branch-feasible-false}
-    \State $\worklist  \gets  \worklist  \cup \{\workstate'', \dependentState''\}$ \label{alg:push-worklist-false-branch}
+  \If{$\Call{feasible}{\workstate, \neg \varphi}$} \label{alg:branch-feasible-false}
+    \State $\workstate' \gets \Call{fork}{\workstate}$ \label{alg:branch-fork-false1}
+    \State $\dependentState' \gets \Call{fork}{\dependentState}$ \label{alg:branch-fork-false2}
+    \State $\Call{addPathCondition}{\workstate', \neg \varphi}$ \label{alg:add-pc-false-recS}
+    \State $\Call{addPathCondition}{\dependentState', \neg \varphi}$ \label{alg:add-pc-false-depS}
+    \State $\worklist \gets \worklist \cup \{\workstate', \dependentState'\}$ \label{alg:push-both}
   \EndIf
 \Else
   \State \Call{executeBranch}{$\workstate$}  \label{alg:branch-normal}
@@ -104,7 +105,7 @@
   \State \Call{updateDependentState}{$\workstate, \addr$} \label{alg:store-udpate-dep-states}
   \ignore{
     \If{$\addr = $\Call{dependentLoad}{$\workstate$}}
-      \State $\dependentState \gets  \Call{getDependent}{\workstate}$
+      \State $\dependentState \gets  \Call{getDependentState}{\workstate}$
       \label{alg:store-extract-dependent}
       \State \Call{executeStore}{$\dependentState, \inst$}
     \EndIf
@@ -122,7 +123,7 @@
 \Function{handleExit}{$\workstate, \inst$}
 \If{$\workstate.\isRecovery \land \Call{retInSkip}{\workstate}$} \label{alg:exit-check-recovery}
   \State \Call{terminate}{$\recoveryState$} \label{alg:exit-terminate-recovery}
-  \State $\dependentState \gets  \Call{getDependent}{\workstate}$ \label{alg:exit-extract-dependent}
+  \State $\dependentState \gets  \Call{getDependentState}{\workstate}$ \label{alg:exit-extract-dependent}
   \State \Call{resume}{$\dependentState$} \label{alg:exit-resume}
   \State $\worklist \gets  \worklist \cup \{\dependentState\}$
 \Else
@@ -144,7 +145,8 @@
        \State $\dependentState \gets \workstate$ \label{alg:recover-gen-depS}
        \State $\Call{suspend}{\dependentState}$ \label{alg:recover-suspend}
        \State $\gc \gets  \Call{getGuidingConstraints}{\dependentState}$ \label{alg:recover-get-gc}
-       \State $\recoveryState \gets \Call{fork}{\snapshot,\gc}$ \label{alg:recover-gen-recS}
+       \State $\recoveryState \gets \Call{fork}{\snapshot}$ \label{alg:recover-gen-recS}
+       \State $\recoveryState \gets \Call{addPathConditions}{\recoveryState,\gc}$ \label{alg:add-guiding-constraints}
        \State $\recoveryState.\isRecovery \gets \mtrue$ \label{alg:recover-set-is-recS}
        % TODO: fix the slice call...
        \State $\Call{slice}{\recoveryState,\addr}$ \label{alg:recover-slice}

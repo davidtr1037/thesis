@@ -160,36 +160,35 @@ At lines~\ref{alg:set-dependent-state} and \ref{alg:set-load-addr},
 $\workstate$ is set to be the dependent state of $\recoveryState$,
 and the address $\addr$ is set to be the load address of $\recoveryState$.
 The recovery state needs to know the address of the dependent load,
-so it would be able to update it's dependent state, when this address is written.
+so it would be able to update it's dependent state when this address is written.
 In addition, once the recovery state terminates (normal return, exit, error),
 it's dependent state must be treated appropriately.
 Finaly, the recovery state $\recoveryState$ is pushed to the worklist (\cref{alg:push-worklist-recovery}).
 
 \subsection{\text{Handling \textit{Branch} Instructions}}
-%{(lines~\ref{alg:casebranch-begin}--\ref{alg:casebranch-end})}
-
-The algorithm checks whether the current state $\workstate$ is a
-recovery state. If so, then the $\instruct{Branch}$ instruction is
+A $\instruct{Branch}$ instruction is handled
+at lines~\ref{alg:casebranch-begin}--\ref{alg:casebranch-end}.
+The algorithm checks whether the current state $\workstate$ is a recovery state.
+If so, then the $\instruct{Branch}$ instruction is
 handled as illustrated by steps \step{4}{} and \step{5}{} in
-\Cref{fig:simple} (see \S\ref{chapter:overview}): It first extracts from
-the worklist the (suspended) dependent state $\dependentState$, which
-spawned $\workstate$ as a recovery state
-(\cref{alg:extract-dependent}).  It then determines the branch
-condition $\varphi$ (\cref{alg:branch-get-cond}); forks both the
-current (recovery) state $\workstate$ and the dependent state
-$\dependentState$, and adds $\varphi$ to their path condition
-(lines~\ref{alg:branch-fork-true1}--\ref{alg:branch-fork-true2}).
-After the fork, it checks whether the resulting states are feasible,
-\ie their path conditions are satisfiable
-(\cref{alg:branch-feasible-true}), and if so, adds them to the
-worklist. If either one is not feasible, the newly forked recovery and
-dependent states are simultaneously discarded
-(\cref{alg:push-worklist-true-branch}).
-Lines~\ref{alg:branch-fork-true1}--\ref{alg:push-worklist-true-branch}
-act similarly to
-lines~\ref{alg:branch-fork-false1}--\ref{alg:push-worklist-false-branch},
-except that we use the negation of the branch condition
-$\neg\varphi$. If the current state $\workstate$ is not a recovery
+\Cref{fig:simple} (see \S\ref{chapter:overview}).
+It first gets from $\workstate$ the (suspended) dependent state $\dependentState$,
+which spawned $\workstate$ as a recovery state (\cref{alg:get-dependent}).
+It then determines the branch condition $\varphi$ (\cref{alg:branch-get-cond}).
+If $\varphi$ is feasible in $\workstate$,
+then it is added to it's path condition as well as to the path conditions
+of it's dependent state $\dependentState$ (lines~\ref{alg:add-pc-true-recS}--\ref{alg:add-pc-true-depS}).
+If the negation of the branch condition, $\neg \varphi$, is feasible in $\workstate$,
+then the (current) recovery state $\workstate$ and it's dependent state $\dependentState$ are forked.
+Their path conditions are updated with $\neg \varphi$ (lines~\ref{alg:add-pc-false-recS}--\ref{alg:add-pc-false-depS}),
+and both are pushed to the worklist (line~\ref{alg:push-both}).
+
+Since the \textit{guiding constraints} are added to a recovery state at the moment of creation,
+a branch which is feasible in a recovery state is guaranteed to feasible in it's dependent state as well.
+This means, that whenever we have a fork in a recovery state,
+it is enough to check satisfiability only in the recovery state.
+
+If the current state $\workstate$ is not a recovery
 state, then the $\instruct{Branch}$ instruction is handled as usual in
 symbolic execution (\cref{alg:branch-normal}).
 
