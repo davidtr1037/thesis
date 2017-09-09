@@ -11,77 +11,125 @@
 
     \Switch{$\inst$} \label{alg:switch}
     \Case{Call} \label{alg:casecall-begin}
-      \State $f \gets  \Call{targetFunction}{\workstate}$ \label{alg:call-find-target}
-      \If{$f \in \skipFunctions$}
-        \State $\snapshot \gets \Call{createSnapshotAndSkip}{\workstate}$ \label{alg:take-snapshot}
-        \State $\workstate.\skipped \gets \workstate.\skipped + (f,\snapshot,\emptyset)$ \label{alg:record-snapshot}
-        \State $\worklist  \gets  \worklist  \cup \{\workstate\}$ \label{alg:push-worklist-call}
-      \Else
-        \State $\Call{executeCall}{\workstate}$ \label{alg:call-normal}
-      \EndIf
+      \Call{handleCall}{$\workstate, \inst$}
     \EndCase \label{alg:casecall-end}
     \Case{Load} \label{alg:caseload-begin}
-      \State $\addr \gets \Call{loadAddress}{\workstate}$
-      \If{$\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$}%.\skipped}$}
-        %\TODO: Explain that this is a simplification and recovery states are maintained in a pool
-        \State $\Call{createRecoveryState}{\workstate,\addr}$ \label{alg:call-recover}
-      \Else
-      \State \Call{executeLoad}{$\workstate, \inst$}  \label{alg:load-normal}
-      \EndIf
+      \Call{handleLoad}{$\workstate, \inst$}
     \EndCase \label{alg:caseload-end}
     \Case{Branch} \label{alg:casebranch-begin}
-      \If{$\workstate.\isRecovery$} \label{alg:branch-check-recovery}
-        \State $\varphi = \Call{condition}{\inst}$  \label{alg:branch-get-cond}
-        \State $\dependentState \gets  \Call{getDependent}{\workstate}$ \label{alg:extract-dependent}
-        \State $\workstate'' \gets \Call{fork}{\workstate,\varphi }$ \label{alg:branch-fork-true1}
-        \State $\dependentState'' \gets \Call{fork}{\dependentState,\varphi }$ \label{alg:branch-fork-true2}
-      \If{$\Call{feasible}{\workstate''} \land \Call{feasible}{\dependentState''}$} \label{alg:branch-feasible-true}
-           \State $\worklist  \gets  \worklist  \cup \{\workstate'', \dependentState''\}$
-           \label{alg:push-worklist-true-branch}
-      \EndIf
-      \State $\workstate' \gets \Call{fork}{\workstate, \neg\varphi}$ \label{alg:branch-fork-false1}
-      \State $\dependentState' \gets \Call{fork}{\dependentState, \neg\varphi}$ \label{alg:branch-fork-false2}
-      \If{$\Call{feasible}{\workstate'} \land \Call{feasible}{\dependentState'}$}  \label{alg:branch-feasible-false}
-           \State $\worklist  \gets  \worklist  \cup \{\workstate'', \dependentState''\}$
-           \label{alg:push-worklist-false-branch}
-      \EndIf
-      \Else
-        \State \Call{executeBranch}{$\workstate$}  \label{alg:branch-normal}
-      \EndIf
+      \Call{handleBranch}{$\workstate, \inst$}
     \EndCase \label{alg:casebranch-end}
     \Case{Store} \label{alg:casestore-begin}
-      \State $\addr \gets \Call{storeAddress}{\workstate}$
-      \State $\Call{recordOverwrite}{\workstate,\addr}$     \label{alg:record-overwrite}
-      \State $\Call{executeStore}{\workstate,\addr}$     \label{alg:store-normal}
-      \If{$\workstate.\isRecovery$}
-      \label{alg:store-check-recovery}
-      \State \Call{updateDependentState}{$\workstate, \addr$}
-      \label{alg:store-udpate-dep-states}
-
-      \ignore{
-        \If{$\addr = $\Call{dependentLoad}{$\workstate$}}
-          \State $\dependentState \gets  \Call{getDependent}{\workstate}$
-          \label{alg:store-extract-dependent}
-          \State \Call{executeStore}{$\dependentState, \inst$}
-        \EndIf
-      }
-      \EndIf
+      \Call{handleStore}{$\workstate, \inst$}
     \EndCase \label{alg:casestore-end}
     \Case{Exit} \label{alg:caseexit-begin}
-      \If{$\workstate.\isRecovery \land \Call{retInSkip}{\workstate}$} \label{alg:exit-check-recovery}
-        \State \Call{terminate}{$\recoveryState$} \label{alg:exit-terminate-recovery}
-        \State $\dependentState \gets  \Call{getDependent}{\workstate}$
-        \label{alg:exit-extract-dependent}
-        \State \Call{resume}{$\dependentState$} \label{alg:exit-resume}
-        \State $\worklist \gets  \worklist \cup \{\dependentState\}$
-      \Else
-        \State \Call{executeExit}{$\workstate$}  \label{alg:exit-normal}
-        \label{alg:push-worklist-exit}
-      \EndIf
+      \Call{handleExit}{$\workstate, \inst$}
     \EndCase \label{alg:caseexit-end}
     \EndSwitch
   \EndWhile
   \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{handleCall}
+  \label{fig:aux-func-recS}}
+\begin{algorithmic}[1]
+
+\Function{handleCall}{$\workstate, \inst$}
+\State $f \gets  \Call{targetFunction}{\workstate}$ \label{alg:call-find-target}
+\If{$f \in \skipFunctions$}
+  \State $\snapshot \gets \Call{createSnapshotAndSkip}{\workstate}$ \label{alg:take-snapshot}
+  \State $\workstate.\skipped \gets \workstate.\skipped + (f,\snapshot,\emptyset)$ \label{alg:record-snapshot}
+\Else
+  \State $\Call{executeCall}{\workstate}$ \label{alg:call-normal}
+\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{handleLoad}
+  \label{fig:aux-func-recS}}
+\begin{algorithmic}[1]
+
+\Function{handleLoad}{$\workstate, \inst$}
+\State $\addr \gets \Call{loadAddress}{\workstate}$
+\If{$\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$}%.\skipped}$}
+  %\TODO: Explain that this is a simplification and recovery states are maintained in a pool
+  \State $\Call{createRecoveryState}{\workstate,\addr}$ \label{alg:call-recover}
+\Else
+  \State \Call{executeLoad}{$\workstate, \inst$}  \label{alg:load-normal}
+\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{handleBranch}
+  \label{fig:aux-func-recS}}
+\begin{algorithmic}[1]
+
+\Function{handleBranch}{$\workstate, \inst$}
+\If{$\workstate.\isRecovery$} \label{alg:branch-check-recovery}
+  \State $\varphi = \Call{condition}{\inst}$  \label{alg:branch-get-cond}
+  \State $\dependentState \gets  \Call{getDependent}{\workstate}$ \label{alg:extract-dependent}
+  \State $\workstate'' \gets \Call{fork}{\workstate,\varphi }$ \label{alg:branch-fork-true1}
+  \State $\dependentState'' \gets \Call{fork}{\dependentState,\varphi }$ \label{alg:branch-fork-true2}
+  \If{$\Call{feasible}{\workstate''} \land \Call{feasible}{\dependentState''}$} \label{alg:branch-feasible-true}
+    \State $\worklist  \gets  \worklist  \cup \{\workstate'', \dependentState''\}$ \label{alg:push-worklist-true-branch}
+  \EndIf
+  \State $\workstate' \gets \Call{fork}{\workstate, \neg\varphi}$ \label{alg:branch-fork-false1}
+  \State $\dependentState' \gets \Call{fork}{\dependentState, \neg\varphi}$ \label{alg:branch-fork-false2}
+  \If{$\Call{feasible}{\workstate'} \land \Call{feasible}{\dependentState'}$}  \label{alg:branch-feasible-false}
+    \State $\worklist  \gets  \worklist  \cup \{\workstate'', \dependentState''\}$ \label{alg:push-worklist-false-branch}
+  \EndIf
+\Else
+  \State \Call{executeBranch}{$\workstate$}  \label{alg:branch-normal}
+\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{handleStore}
+  \label{fig:aux-func-recS}}
+\begin{algorithmic}[1]
+
+\Function{handleStore}{$\workstate, \inst$}
+\State $\addr \gets \Call{storeAddress}{\workstate}$
+\State $\Call{recordOverwrite}{\workstate,\addr}$     \label{alg:record-overwrite}
+\State $\Call{executeStore}{\workstate,\addr}$     \label{alg:store-normal}
+\If{$\workstate.\isRecovery$} \label{alg:store-check-recovery}
+  \State \Call{updateDependentState}{$\workstate, \addr$} \label{alg:store-udpate-dep-states}
+  \ignore{
+    \If{$\addr = $\Call{dependentLoad}{$\workstate$}}
+      \State $\dependentState \gets  \Call{getDependent}{\workstate}$
+      \label{alg:store-extract-dependent}
+      \State \Call{executeStore}{$\dependentState, \inst$}
+    \EndIf
+  }
+\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{handleExit}
+  \label{fig:aux-func-recS}}
+\begin{algorithmic}[1]
+
+\Function{handleExit}{$\workstate, \inst$}
+\If{$\workstate.\isRecovery \land \Call{retInSkip}{\workstate}$} \label{alg:exit-check-recovery}
+  \State \Call{terminate}{$\recoveryState$} \label{alg:exit-terminate-recovery}
+  \State $\dependentState \gets  \Call{getDependent}{\workstate}$ \label{alg:exit-extract-dependent}
+  \State \Call{resume}{$\dependentState$} \label{alg:exit-resume}
+  \State $\worklist \gets  \worklist \cup \{\dependentState\}$
+\Else
+  \State \Call{executeExit}{$\workstate$}  \label{alg:exit-normal}
+  \label{alg:push-worklist-exit}
+\EndIf
+\EndFunction
 \end{algorithmic}
 \end{algorithm}
 

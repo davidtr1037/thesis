@@ -2,8 +2,6 @@
 
 \section{Main Algorithm}\label{section:main-algorithm}
 
-\input{cse-alg}
-
 \Cref{fig:chopped-symbexe} presents the key steps in chopped
 symbolic execution, which we gradually explain. The algorithm operates
 on a simple imperative C-like heap-manipulating language with
@@ -45,43 +43,38 @@ with an \emph{initial symbolic state} ($\instate$) and a set
 containing the names of the functions that the user wishes to skip
 ($\skipFunctions$). We expect a symbolic state $\workstate$ to encode,
 among other properties, the next instruction to be executed, the activation record stack,
-and a symbolic description of the program \emph{heap}. For example, the
+and a symbolic description of the program \emph{address space}. For example, the
 chopped symbolic execution described in \Cref{chapter:overview} begins
 with $\instate$ in which the stack contains only the activation record
 of $\code{main}$, with the program counter at
-line~\ref{line:main_enter}, an empty heap, and
+line~\ref{line:main_enter}, an empty address space, and
 $\skipFunctions = \{ \code{f} \}$.
 
-At the beginning of the algorithm the $\worklist$ is empty, and we
-initialize it with $\instate$ (\cref{alg:seed-worklist}). Then, a
-standard worklist-based algorithm starts executing until either the
+The pool of execution states is mainted using the $\worklist$,
+which is initialized at the beginning with $\instate$ (\cref{alg:seed-worklist}).
+Then, a standard worklist-based algorithm starts executing until either the
 worklist is empty (\cref{alg:iterate-worklist}), or the algorithm
 exhausts the time budget (elided). As usual, the algorithm pops the
 symbolic state $\workstate$ to explore out of the worklist
-(\cref{alg:pop-worklist}). Unconventionally, however, we assume that
+(\cref{alg:pop-worklist}).
+Unconventionally, however, we assume that
 the selected state is not suspended, since a suspended state is ignored by the execution engine
 until it's corresponding recovery state terminates
-and the value of the depended load is resolved (see \S\ref{chapter:overview}).
-\footnote{For simplicity, we defer the
-discussion regarding the search heuristics to \S\ref{Se:Search}, and
-assume, for now, that any unsuspended state can be returned.}  The
-next step of the algorithm depends on the instruction type
-(\cref{alg:switch}).
+and the value of the depended load is recovered (see \S\ref{chapter:overview}).
+At this point, we defer the discussion regarding the search heuristics to \S\ref{Se:Search},
+and assume, for now, that any unsuspended state can be returned.
+The next step of the algorithm depends on the instruction type (\cref{alg:switch}).
 
 \subsection{\text{Handling \textit{Call} Instructions}}
-%{(lines~\ref{alg:casecall-begin}--\ref{alg:casecall-end})}}
-
-A $\instruct{Call}$ instruction is handled as illustrated by step
-\step{1} in \Cref{fig:simple} (see \S\ref{chapter:overview}): First, the
-algorithm determines the name $f$ of the invoked function
+A $\instruct{Call}$ instruction is handled at lines~\ref{alg:casecall-begin}--\ref{alg:casecall-end} as illustrated by step
+\step{1} in \Cref{fig:simple} (see \S\ref{chapter:overview}):
+First, the algorithm determines the name $f$ of the invoked function
 (\cref{alg:call-find-target}). Then, if $f$ is one of the skipped
 functions, the algorithm creates a snapshot of the current state
 $\workstate$ and advances the program counter in $\workstate$
 without executing the skipped function (\cref{alg:take-snapshot}).
 The newly created $\snapshot$ state is added to the end of its list 
-of \emph{skipped invocations} (\cref{alg:record-snapshot}),
-and $\workstate$ is returned to the worklist
-(\cref{alg:push-worklist-call}).
+of \emph{skipped invocations} (\cref{alg:record-snapshot}).
 A skipped invocation is represented
 as a triple $(f,\snapshot,\owset)$ composed of the name of a skipped
 function $f$, a $snapshot$ of the symbolic state at the time $f$ was
@@ -194,6 +187,7 @@ is resumed \cref{alg:exit-resume}. Otherwise, the $\instruct{Exit}$
 instruction is handled as usual in symbolic execution
 (\cref{alg:exit-normal}).
 
+\input{cse-alg}
 
 %%% Local Variables:
 %%% mode: latex
