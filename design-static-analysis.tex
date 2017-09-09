@@ -1,18 +1,7 @@
 %!TEX root=./paper.tex
 
 \section{Static Inference of Function Side-Effects}
-\label{Se:MayMod}
-\label{Se:IdentifyingLoads}
-
-%TODO: move to the main algorithm!
-%The auxiliary function $\Call{mayMod}{ \workstate, \funclist, \addr }$
-%receives as parameters a symbolic state $\workstate$, a list of
-%skipped invocations $\funclist$, and an address $\addr$ which is the
-%target of a $\instruct{Load}$ instruction, and determines whether one
-%of the skipped function in $\funclist$ may store a value in $\addr$.
-%The function makes this decision using a \emph{points-to} graph
-%computed by a preliminary stage of pointer
-%analysis~\cite{Hind:Paste2001, Smaragdakis:FTPL2015}.
+\label{section:static-analysis}
 
 \subsection{Pointer Analysis}
 We perform a whole program flow-insensitive, context-insensitive, and field-sensitive
