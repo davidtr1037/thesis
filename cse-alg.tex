@@ -143,12 +143,14 @@
     \If{$\Call{mayMod}{\workstate, (f,\snapshot,\owset) ,\addr}$} \label{alg:recover-if-found}
        \State $\dependentState \gets \workstate$ \label{alg:recover-gen-depS}
        \State $\Call{suspend}{\dependentState}$ \label{alg:recover-suspend}
-       \State $\gc \gets  \Call{getGuidingConstraints}{\workstate}$ \label{alg:recover-get-gc}
+       \State $\gc \gets  \Call{getGuidingConstraints}{\dependentState}$ \label{alg:recover-get-gc}
        \State $\recoveryState \gets \Call{fork}{\snapshot,\gc}$ \label{alg:recover-gen-recS}
        \State $\recoveryState.\isRecovery \gets \mtrue$ \label{alg:recover-set-is-recS}
+       % TODO: fix the slice call...
        \State $\Call{slice}{\recoveryState,\addr}$ \label{alg:recover-slice}
-       \State $\Call{linkDependent}{\recoveryState,\addr,\dependentState}$ \label{alg:recover-record-dep}
-       \State $\worklist  \gets  \worklist  \cup \{\dependentState,\recoveryState\}$
+       \State $\recoveryState.dependentState = \dependentState$ \label{alg:set-dependent-state}
+       \State $\recoveryState.loadAddr = \addr$ \label{alg:set-load-addr}
+       \State $\worklist \gets \worklist \cup \{\recoveryState\}$
        \label{alg:push-worklist-recovery}
     \EndIf
   \EndFor

@@ -89,42 +89,81 @@ invocation as usual in symbolic execution.  For brevity, we elide the
 standard handling of commands by symbolic execution.
 
 \subsection{\text{Handling \textit{Load} Instructions}}
-A $\instruct{Call}$ instruction is handled
+A $\instruct{Load}$ instruction is handled
 at lines {(lines~\ref{alg:caseload-begin}--\ref{alg:caseload-end})}.
-The algorithm utilizes
-$\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$, as shown in
-\Cref{fig:aux-func-may-mod} and explained in
-\S\ref{Se:IdentifyingLoads}, to determine whether the address from
+The algorithm calls $\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$,
+as shown in \Cref{fig:aux-func-may-mod}
+to determine whether the address from
 which a value is read ($\addr$) might have been modified by one of the
-skipped functions on the path followed by the current state
-$\workstate$.
-If so, the algorithm creates a recovery state by
-calling $\Call{recover}{\workstate,\addr}$.  Otherwise, the
-$\instruct{Load}$ instruction is handled as usual in symbolic
-execution (\cref{alg:load-normal}).
+skipped functions on the path followed by the current state $\workstate$.
+
+The auxiliary function $\textsc{mayMod}$
+receives as parameters a symbolic state $\workstate$, a list of
+skipped invocations $\funclist$, and an address $\addr$ which is the
+target of a $\instruct{Load}$ instruction, and determines whether one
+of the skipped function in $\funclist$ may store a value in $\addr$.
+As was described in \Cref{section:static-analysis},
+a \textit{load} instruction is associated with the allocation sites to
+which it may point and which may be modified by a skipped function.
+Using the fact that we are running in the context of symbolic execution,
+we can determine the memory object which is associated with $\addr$ and more importantly,
+determine the exact allocaion site of $\addr$.
+
+The ability to determine the exact allocation site helps us to avoid redundant recoveries.
+In \Cref{fig:dependent-load}, $\code{strlen}$ is invoked twice
+with two different objects: $\code{a}$ and $\code{b}$.
+Since our pointer analysis is context-insensitive,
+the points-to set in $\code{stlen}$ contains the allocation sites of both $\code{a}$ and $\code{b}$.
+Thus, from the point of view of pointer analysis,
+the first invocation of $\code{strlen}$ at line \ref{line:load-a}
+may depend on the side effects of $\code{modify}$
+(which is not precise, since only the second invocation of $\code{strlen}$ is affected by $\code{modify}$).
+However, when symbolically executing the load at line \ref{line:load-a},
+we know that the exact allocation site is the variable $\code{a}$
+which is not included in the set of objects which may be modified by $\code{modify}$.
+As a result, we avoid a redundant recovery of the $\code{modify}$ function.
+
+\begin{figure*}[t]
+  \centering
+  \subfloat[]{
+    \lstinputlisting[linewidth=.4\textwidth]{code/dependent-load.c}
+    \label{fig:dependent-load}
+  }
+  \caption{Avoiding recovery using allocation site information}
+  \label{fig:simpe-dependent-load}
+\end{figure*}
+
+If $\textsc{mayMod}$ returns true,
+then the algorithm calls \textsc{createRecoveryState} in order to create a recovery state.
+Otherwise, the $\instruct{Load}$ instruction is handled as usual in symbolic execution (\cref{alg:load-normal}).
 
 Procedure \textsc{createRecoveryState} is shown in
 \ref{fig:aux-func-recS}. The function handles $\instruct{Load}$
 instructions as illustrated by step \step{2}{} in \Cref{fig:simple}
-(see \S\ref{chapter:overview}): It iterates over the list of skipped
-functions (\Cref{alg:recover-foreach}), and uses
+(see \S\ref{chapter:overview}):
+It iterates over the list of skipped
+functions (line~\ref{alg:recover-foreach}), and uses
 $\Call{mayMod}{\workstate, f, \addr}$ to determine which of the skipped
-functions $f$ might have modified the dependent address. Once it finds
+functions $f$ might have written to the address $\addr$. Once it finds
 such a function (\cref{alg:recover-if-found}), the current state
 becomes a dependent state (\cref{alg:recover-gen-depS}) and it is
-immediately suspended (\cref{alg:recover-suspend}). The procedure then
-generates the corresponding \emph{recovery state} $\recoveryState$ by
-forking $\snapshot$ and by augmenting its path condition with the
-guiding constraints $\gc$ (\cref{alg:recover-get-gc}), \ie the path
-conditions accumulated in $\workstate$ since the snapshot state was
-created (\cref{alg:recover-gen-recS,alg:recover-set-is-recS}). The
-algorithm then invokes a static program slicer to remove from the
-skipped function $f$ instructions which cannot affect the address of
-the dependent load (\cref{alg:recover-slice}); records that
-$\recoveryState$ was spawned to determine the value written in address
-$\addr$ of $\dependentState$ (\cref{alg:recover-record-dep}); and
-pushes the two states into the worklist
-(\cref{alg:push-worklist-recovery}).
+immediately suspended (\cref{alg:recover-suspend}). 
+The procedure then creates a \emph{recovery} state $\recoveryState$ by
+forking $\snapshot$.
+The \textit{guiding constraints}, \ie  the path conditions accumulated in $\workstate$
+since the snapshot state was created (\cref{alg:recover-gen-recS,alg:recover-set-is-recS}),
+are added to the path conditions of the newly created recovery state.
+The algorithm then invokes a static program slicer to remove from the
+skipped function $f$ instructions which cannot affect the memory location which corresponds to
+the dependent load (\cref{alg:recover-slice}).
+At lines~\ref{alg:set-dependent-state} and \ref{alg:set-load-addr},
+$\workstate$ is set to be the dependent state of $\recoveryState$,
+and the address $\addr$ is set to be the load address of $\recoveryState$.
+The recovery state needs to know the address of the dependent load,
+so it would be able to update it's dependent state, when this address is written.
+In addition, once the recovery state terminates (normal return, exit, error),
+it's dependent state must be treated appropriately.
+Finaly, the recovery state $\recoveryState$ is pushed to the worklist (\cref{alg:push-worklist-recovery}).
 
 \subsection{\text{Handling \textit{Branch} Instructions}}
 %{(lines~\ref{alg:casebranch-begin}--\ref{alg:casebranch-end})}
