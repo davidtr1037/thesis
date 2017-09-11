@@ -3,21 +3,17 @@
 \section{Multiple Recovery States}
 \label{Se:MultiRecovery}
 In some cases, we need to create several recovery states during a
-single chopped symbolic execution.
+chopped symbolic execution with a single skipped function.
+For example, consider the following code fragment:
 
-For example, consider the following code fragment which modifies the
-body of the \code{main()} function in Figure~\ref{fig:simple}:
-\[
-\code{f(\&p,k); if (p.x) \{ p.z++; \} if (p.y) \{ p.z--; \}}
-\]
-If we wish to skip the invocation to $\code{f}()$ then a recovery
-state and a dependent state are created every time the condition of
-the branch needs to be evaluated. Note that the second dependent state
-is produced from the first dependent one and that the resumed state
-encapsulates the changes made by the first recovery state. Assume that
-these changes involve a modification of the value of $\code{p.x}$
-inside the $k>0$ branch at line~\ref{line:px_write}. If the symbolic
-execution of the second recovery state goes through the path in which
+\lstinputlisting[linewidth=.4\textwidth,numbers=none]{code/multiple-recovery-states.c}
+\label{fig:ret2void-original-f}
+
+In this example, we have two dependent loads:
+one which reads from $\code{p->x}$ and another which reads from $\code{p->y}$.
+As a result, two recovery states are expected to be created.
+Assume that the first recovery state goes through the branch which assumes $k > 0$.
+If the symbolic execution of the second recovery state goes through the path in which
 $\code{p.y}$ is updated ($k\le0$), the induced combined execution
 would be infeasible. To avoid this undesirable situation, when a
 recovery state terminates, it adds the new constraints accumulated in
