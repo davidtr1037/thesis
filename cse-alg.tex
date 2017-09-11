@@ -1,35 +1,6 @@
 %!TEX Root=./paper.tex
 
-\begin{algorithm} % [tbp]
-\caption{Chopped symbolic execution (simplified).\label{fig:chopped-symbexe-recover}\label{fig:chopped-symbexe} }
-\begin{algorithmic}[1]
-  \Function{cse}{$\instate$, $\skipFunctions$}
-  \State $\worklist \gets \worklist \cup \{ \instate\}$  \label{alg:seed-worklist}
-  \While{$\worklist \neq \emptyset$}                     \label{alg:iterate-worklist}
-    \State $\workstate \gets  \Call{selectUnsuspended}{\worklist}$ \label{alg:pop-worklist}
-    \State $\inst \gets  \Call{instruction}{\workstate}$ \label{alg:get-switch-inst}
 
-    \Switch{$\inst$} \label{alg:switch}
-    \Case{Call} \label{alg:casecall-begin}
-      \Call{handleCall}{$\workstate, \inst$}
-    \EndCase \label{alg:casecall-end}
-    \Case{Load} \label{alg:caseload-begin}
-      \Call{handleLoad}{$\workstate, \inst$}
-    \EndCase \label{alg:caseload-end}
-    \Case{Branch} \label{alg:casebranch-begin}
-      \Call{handleBranch}{$\workstate, \inst$}
-    \EndCase \label{alg:casebranch-end}
-    \Case{Store} \label{alg:casestore-begin}
-      \Call{handleStore}{$\workstate, \inst$}
-    \EndCase \label{alg:casestore-end}
-    \Case{Exit} \label{alg:caseexit-begin}
-      \Call{handleExit}{$\workstate, \inst$}
-    \EndCase \label{alg:caseexit-end}
-    \EndSwitch
-  \EndWhile
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
 
 \begin{algorithm}
   \caption{Auxiliary procedure: \textsc{handleCall}
