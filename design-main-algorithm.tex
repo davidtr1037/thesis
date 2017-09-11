@@ -13,23 +13,6 @@ The function parameters can be of any type: primitives, structs, poitner, \etc
 Without loss of generality, we assume that functions do not have a return value.
 A function with a return value can always be rewritten with an additional parameter 
 that points to the memory location of the return value.
-For example, the function in figure~\ref{fig:ret2void-original-f}
-will be rewritten to the function in figure~\ref{fig:ret2void-rewritten-f}.
-\begin{figure*}[t]
-  \centering
-  \subfloat[]{
-    \lstinputlisting[linewidth=.4\textwidth,numbers=none]{code/ret2void-1.c}
-    \label{fig:ret2void-original-f}
-  }
-  
-  \subfloat[]{
-    \lstinputlisting[linewidth=.4\textwidth,numbers=none]{code/ret2void-2.c}
-    \label{fig:ret2void-rewritten-f}
-  }
-
-  \caption{Reduction to a void-returning function}
-  \label{fig:simple}
-\end{figure*}
 
 To simplify the explanation, we now
 assume that we may skip at most one function invocation at every
