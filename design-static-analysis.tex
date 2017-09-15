@@ -74,12 +74,10 @@ includes the allocation sites of both the string \textit{"a"} and the string \te
 \end{figure}
 
 \subsection{Mod-Ref Analysis}
-Using the points-to graph, we use a
-standard \emph{may-mod} analysis (see, e.g.,~\cite{dragon-book}), in
-which we find the side effects of every function $f$, \ie the set of
-possible locations, represented by their allocation sites, that the
-function itself or any function that it may (transitively) invoke, may
-modify.
+Using the points-to graph, we use a standard \emph{may-mod} analysis (see, e.g.,~\cite{dragon-book}),
+in which we find the side effects of every function $f$,
+\ie the set of possible locations, represented by their allocation sites,
+that the function itself or any function that it may (transitively) invoke, may modify.
 
 In addition to computing the side effects,
 we compute for each \textit{load} instruction whose operand may be modified by a skipped function,
