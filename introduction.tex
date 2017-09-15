@@ -56,81 +56,60 @@ In practice, these heuristics only partially alleviate the path
 explosion problem, as the following example demonstrates.
 
 \section{Motivating Example.}
-The \texttt{extract\_octet()} function, shown in
-\Cref{fig:intro-example}, is a simplified version of a function from
-the \texttt{libtasn1} library which parses ASN.1 encoding
-rules from an input string.\footnote{https://www.gnu.org/software/
-  libtasn1} The ASN.1 protocol is used in many networking and
+The \texttt{\_asn1\_extract\_der\_octet} function, shown in \Cref{fig:intro-1},
+is taken from the \texttt{libtasn1} library (https://www.gnu.org/software/libtasn1)
+which parses ASN.1 encoding rules from an input string.
+The ASN.1 protocol is used in many networking and
 cryptographic applications, such as those handling public key
-certificates and electronic mail.  Versions of \texttt{libtasn1} before
-4.5 are affected by a heap-overflow security vulnerability that could
-be exploited via a crafted
-certificate.\footnote{https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3622.}
-Unfortunately, given a time budget of 24 hours, the analysis of the
-\texttt{extract\_octet()} function using the state-of-the-art symbolic
-execution engine KLEE~\cite{klee} fails to identify the vulnerability
-due to path explosion.
+certificates and electronic mail.
+Versions of \texttt{libtasn1} before 4.5 are affected by a heap-overflow 
+security vulnerability \footnote{CVE-2015-3622: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3622}
+that could be exploited via a crafted certificate
+Unfortunately, given a time budget of 24 hours,
+the analysis of the \texttt{\_asn1\_extract\_der\_octet} function using
+the state-of-the-art symbolic execution engine KLEE~\cite{klee} fails
+to identify the vulnerability due to path explosion.
 
-At each loop iteration
-(lines~\ref{line:loop_begin}--\ref{line:loop_end}), the function
-decodes the current data element with \texttt{get\_length}
-(line~\ref{line:heap_overflow}). Function \texttt{get\_length} scans
-through the input string and decodes the ASN.1 fields. Then, the
-execution either recursively iterates over the input string
-(line~\ref{line:recursion}), or invokes \texttt{append\_value}
-(line~\ref{line:append}). Function \texttt{append\_value} creates the
+At each loop iteration (lines~\ref{line:loop_begin}--\ref{line:loop_end}),
+the function decodes the current data element with \texttt{asn1\_get\_length} (line~\ref{line:heap_overflow}).
+The function \texttt{asn1\_get\_length} parses the input string and decodes the length of the current component.
+Then, the execution either recursively iterates over the input string (line~\ref{line:recursion}),
+or invokes \texttt{\_asn1\_append\_value} (line~\ref{line:append}).
+The function \texttt{\_asn1\_append\_value} (see~\Cref{fig:intro-2}) creates the
 actual node in the Abstract Syntax Tree (AST) by decoding the input
 string given the obtained length. This function scans once more over
 the input string, performs several checks over the selected element,
 and allocates memory for the node in the recursive data structure.
 
 Path explosion in this function occurs due to several nested function
-calls. Symbolically executing function \texttt{get\_length} alone with
-a symbolic string of \textit{n} characters leads to $4*n$ different
-paths. Function \texttt{append\_value} increases even more the number
+calls. Symbolically executing function \texttt{asn1\_get\_length} alone with
+a symbolic string of \textit{n} characters leads to $4*n$ different paths.
+Function \texttt{\_asn1\_append\_value} increases even more the number
 of paths and also affects the efficiency of the symbolic execution
 engine due to a huge number of constraint solver invocations. As a
 result, the symbolic executor fails to identify the heap-overflow
 vulnerability at line~\ref{line:heap_overflow}.
 
-\begin{figure}[tbp]
-\begin{lstlisting}[linewidth=.99\columnwidth]
-int extract_octet(asn_t asn, char *str, int str_len) {
- int len3, counter, counter_end, result;
- int len2 = get_length(str, str_len, &len3); /*@ \label{line:get_length} @*/
- counter = len3+1;
- counter_end = str_len;
- while (counter < counter_end) { /*@ \label{line:loop_begin} @*/
-    // call to get_length() leads to a heap overflow:
-    // str_len should have been decremented by (len3 + 1)
-    len2 = get_length(str+counter, str_len, &len3); /*@ \label{line:heap_overflow} @*/
-
-    if (len2 >= 0) {
-      DECR_LEN(str_len, len2+len3);
-      append_value(asn, str+counter+len3, len2); /*@ \label{line:append} @*/
-    } else {
-      DECR_LEN(str_len, len3);
-      result = extract_octet(asn, str+counter+len3, str_len); /*@  \label{line:recursion} @*/
-      if (result != SUCCESS)
-        return result;
-      len2 = 0;
-    }
-    DECR_LEN(str_len, 1);        /*@ \label{line:bug} @*/
-    counter += len2+len3+1;
-  }                             /*@ \label{line:loop_end} @*/
-  return SUCCESS;
+\begin{figure}
+\lstinputlisting{code/intro-1.c}
+\caption{
+A simplified excerpt from the \texttt{\_asn1\_der\_extract\_octet} routine
+in \texttt{libtasn1}. The invocation of \texttt{asn1\_get\_length\_der} in
+line~\ref{line:get_length} leads to a heap overflow because
+\texttt{der\_len} has not been decremented before the call.
 }
-\end{lstlisting}
-\caption{A simplified excerpt from the \texttt{extract\_octet} routine
-  in \texttt{libtasn1}. The invocation of \texttt{get\_length()} in
-  line~\ref{line:get_length} leads to a heap overflow because
-  \texttt{str\_len} has not been decremented before the call.}
-\label{fig:intro-example}
+\label{fig:intro-1}
+\end{figure}
+
+\begin{figure}
+\lstinputlisting{code/intro-2.c}
+\caption{A simplified excerpt from the \texttt{\_asn1\_append\_value}}
+\label{fig:intro-2}
 \end{figure}
 
 \section{Our Approach}
-Identifying the vulnerability from the entry point of the library is
-not trivial: To reach the faulty invocation of function \code{get\_length},
+Identifying the vulnerability from the entry point of the library is not trivial.
+To reach the faulty invocation of function \texttt{asn1\_get\_length},
 symbolic execution requires to analyze at the very least 2,945 calls
 to 98 different functions, for a total amount of 386,727 executable
 instructions. Our key observation is that most of the functions
@@ -138,9 +117,9 @@ required during the execution are \textit{not relevant} for finding
 the vulnerability. The vulnerability occurs due to an incorrect update
 of the remaining bytes for parsing (line~\ref{line:bug}), which
 results in a memory out-of-bound read when calling
-\texttt{get\_length}. The bug thus occurs in code which deals with the
+\texttt{asn1\_get\_length}. The bug thus occurs in code which deals with the
 parsing, which is independent from the functions that constructs the
-corresponding ASN.1 representation, such as \texttt{append\_value}.
+corresponding ASN.1 representation, such as \texttt{\_asn1\_append\_value}.
 Therefore, we could have reached the bug even if we had \emph{skipped}
 the irrelevant functions that build the AST.
 
