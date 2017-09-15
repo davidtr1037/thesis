@@ -1,37 +1,5 @@
 %!TEX root=./thesis.tex
 
-\begin{algorithm} % [tbp]
-\caption{Chopped symbolic execution (simplified).\label{fig:chopped-symbexe-recover}\label{fig:chopped-symbexe} }
-\begin{algorithmic}[1]
-  \Function{cse}{$\instate$, $\skipFunctions$}
-  \State $\worklist \gets \worklist \cup \{ \instate\}$  \label{alg:seed-worklist}
-  \While{$\worklist \neq \emptyset$}                     \label{alg:iterate-worklist}
-    \State $\workstate \gets  \Call{selectUnsuspended}{\worklist}$ \label{alg:pop-worklist}
-    \State $\inst \gets  \Call{instruction}{\workstate}$ \label{alg:get-switch-inst}
-
-    \Switch{$\inst$} \label{alg:switch}
-    \Case{Call} \label{alg:casecall-begin}
-      \Call{handleCall}{$\workstate, \inst$}
-    \EndCase \label{alg:casecall-end}
-    \Case{Load} \label{alg:caseload-begin}
-      \Call{handleLoad}{$\workstate, \inst$}
-    \EndCase \label{alg:caseload-end}
-    \Case{Branch} \label{alg:casebranch-begin}
-      \Call{handleBranch}{$\workstate, \inst$}
-    \EndCase \label{alg:casebranch-end}
-    \Case{Store} \label{alg:casestore-begin}
-      \Call{handleStore}{$\workstate, \inst$}
-    \EndCase \label{alg:casestore-end}
-    \Case{Exit} \label{alg:caseexit-begin}
-      \Call{handleExit}{$\workstate, \inst$}
-    \EndCase \label{alg:caseexit-end}
-    \EndSwitch
-  \EndWhile
-  \EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-
 \section{Main Algorithm}\label{section:main-algorithm}
 
 \Cref{fig:chopped-symbexe} presents the key steps in chopped
@@ -80,8 +48,39 @@ At this point, we defer the discussion regarding the search heuristics to \S\ref
 and assume, for now, that any unsuspended state can be returned.
 The next step of the algorithm depends on the instruction type (\cref{alg:switch}).
 
+\begin{algorithm}
+\caption{Chopped symbolic execution (simplified).\label{fig:chopped-symbexe-recover}\label{fig:chopped-symbexe} }
+\begin{algorithmic}[1]
+  \Function{cse}{$\instate$, $\skipFunctions$}
+  \State $\worklist \gets \worklist \cup \{ \instate\}$  \label{alg:seed-worklist}
+  \While{$\worklist \neq \emptyset$}                     \label{alg:iterate-worklist}
+    \State $\workstate \gets  \Call{selectUnsuspended}{\worklist}$ \label{alg:pop-worklist}
+    \State $\inst \gets  \Call{instruction}{\workstate}$ \label{alg:get-switch-inst}
+
+    \Switch{$\inst$} \label{alg:switch}
+    \Case{Call} \label{alg:casecall-begin}
+      \Call{handleCall}{$\workstate, \inst$}
+    \EndCase \label{alg:casecall-end}
+    \Case{Load} \label{alg:caseload-begin}
+      \Call{handleLoad}{$\workstate, \inst$}
+    \EndCase \label{alg:caseload-end}
+    \Case{Branch} \label{alg:casebranch-begin}
+      \Call{handleBranch}{$\workstate, \inst$}
+    \EndCase \label{alg:casebranch-end}
+    \Case{Store} \label{alg:casestore-begin}
+      \Call{handleStore}{$\workstate, \inst$}
+    \EndCase \label{alg:casestore-end}
+    \Case{Exit} \label{alg:caseexit-begin}
+      \Call{handleExit}{$\workstate, \inst$}
+    \EndCase \label{alg:caseexit-end}
+    \EndSwitch
+  \EndWhile
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
 \subsection{\text{Handling \textit{Call} Instructions}}
-A $\instruct{Call}$ instruction is handled at lines~\ref{alg:casecall-begin}--\ref{alg:casecall-end},
+A $\instruct{Call}$ instruction is handled at~\Cref{fig:aux-handle-call},
 as illustrated by step \step{1} in \Cref{fig:simple} (see \S\ref{chapter:overview}).
 First, the algorithm determines the name $f$ of the invoked function
 (\cref{alg:call-find-target}). Then, if $f$ is one of the skipped
@@ -101,14 +100,47 @@ Conversely, if $f$ is not be skipped, the algorithm handles its
 invocation as usual in symbolic execution.  For brevity, we elide the
 standard handling of commands by symbolic execution.
 
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{handleCall}
+  \label{fig:aux-handle-call}}
+\begin{algorithmic}[1]
+
+\Function{handleCall}{$\workstate, \inst$}
+\State $f \gets  \Call{targetFunction}{\workstate, \inst}$ \label{alg:call-find-target}
+\If{$f \in \skipFunctions$}
+  \State $\snapshot \gets \Call{createSnapshot}{\workstate}$ \label{alg:take-snapshot}
+  \State $\workstate.\skipped \gets \workstate.\skipped + (f,\snapshot)$ \label{alg:record-snapshot}
+\Else
+  \State $\Call{executeCall}{\workstate}$ \label{alg:call-normal}
+\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
 \subsection{\text{Handling \textit{Load} Instructions}}
-A $\instruct{Load}$ instruction is handled
-at lines {(lines~\ref{alg:caseload-begin}--\ref{alg:caseload-end})}.
+A $\instruct{Load}$ instruction is handled at~{fig:aux-handle-load}.
 The algorithm calls $\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$,
-as shown in \Cref{fig:aux-func-may-mod}
+as shown in \Cref{fig:aux-may-mod}
 to determine whether the address from
 which a value is read ($\addr$) might have been modified by one of the
 skipped functions on the path followed by the current state $\workstate$.
+
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{handleLoad}
+  \label{fig:aux-handle-load}}
+\begin{algorithmic}[1]
+
+\Function{handleLoad}{$\workstate, \inst$}
+\State $\addr \gets \Call{getLoadAddress}{\workstate, \inst}$
+\If{$\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$}
+  %\TODO: Explain that this is a simplification and recovery states are maintained in a pool
+  \State $\Call{createRecoveryState}{\workstate,\addr}$ \label{alg:call-recover}
+\Else
+  \State \Call{executeLoad}{$\workstate, \inst$}  \label{alg:load-normal}
+\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
 
 The auxiliary function $\textsc{mayMod}$
 receives as parameters a symbolic state $\workstate$, a list of
@@ -149,7 +181,7 @@ then the algorithm calls \textsc{createRecoveryState} in order to create a recov
 Otherwise, the $\instruct{Load}$ instruction is handled as usual in symbolic execution (\cref{alg:load-normal}).
 
 Procedure \textsc{createRecoveryState} is shown in
-\ref{fig:aux-func-recS}. The function handles $\instruct{Load}$
+\ref{fig:aux-create-recovery-state}. The function handles $\instruct{Load}$
 instructions as illustrated by step \step{2}{} in \Cref{fig:simple}
 (see \S\ref{chapter:overview}):
 It iterates over the list of skipped
@@ -176,9 +208,54 @@ In addition, once the recovery state terminates (normal return, exit, error),
 it's dependent state must be treated appropriately.
 Finaly, the recovery state $\recoveryState$ is pushed to the worklist (\cref{alg:push-worklist-recovery}).
 
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{mayMod}.
+  \label{fig:aux-may-mod}}
+\begin{algorithmic}[1]
+
+\Function{mayMod}{$\workstate, \funclist, \addr$}
+  \ForEach{$(f,\snapshot) \in \funclist$}
+    \If{$\Call{allocSite}{\workstate,\addr} \in \Call{modSet}{f}$} \label{alg:maymod-static}
+      \If{$\addr \not \in \workstate.\owset$} \label{alg:maymod-dynamic}
+         \State \Return{$\mathit{true}$}
+       \EndIf
+    \EndIf
+  \EndFor
+  \State \Return{$\mathit{false}$}
+\EndFunction
+
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{createRecoveryState}
+  \label{fig:aux-create-recovery-state}}
+\begin{algorithmic}[1]
+
+\Function{createRecoveryState}{$\workstate, \addr$}
+  \ForEach{$(f,\snapshot) \in \workstate.\skipped$} \label{alg:recover-foreach}
+    \If{$\Call{mayMod}{\workstate, (f,\snapshot) ,\addr}$} \label{alg:recover-if-found}
+       \State $\dependentState \gets \workstate$ \label{alg:recover-gen-depS}
+       \State $\Call{suspend}{\dependentState}$ \label{alg:recover-suspend}
+       \State $\gc \gets  \Call{getGuidingConstraints}{\dependentState}$ \label{alg:recover-get-gc}
+       \State $\recoveryState \gets \Call{fork}{\snapshot}$ \label{alg:recover-gen-recS}
+       \State $\recoveryState \gets \Call{addPathConditions}{\recoveryState,\gc}$ \label{alg:add-guiding-constraints}
+       \State $\recoveryState.\isRecovery \gets \mtrue$ \label{alg:recover-set-is-recS}
+       % TODO: fix the slice call...
+       \State $\Call{slice}{\recoveryState,\addr}$ \label{alg:recover-slice}
+       \State $\recoveryState.dependentState = \dependentState$ \label{alg:set-dependent-state}
+       \State $\recoveryState.loadAddr = \addr$ \label{alg:set-load-addr}
+       \State $\worklist \gets \worklist \cup \{\recoveryState\}$
+       \label{alg:push-worklist-recovery}
+    \EndIf
+  \EndFor
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
 \subsection{\text{Handling \textit{Branch} Instructions}}
-A $\instruct{Branch}$ instruction is handled
-at lines~\ref{alg:casebranch-begin}--\ref{alg:casebranch-end}.
+
+A $\instruct{Branch}$ instruction is handled at~\Cref{fig:aux-handle-branch}.
 The algorithm checks whether the current state $\workstate$ is a recovery state.
 If so, then the $\instruct{Branch}$ instruction is
 handled as illustrated by steps \step{4}{} and \step{5}{} in
@@ -203,9 +280,35 @@ If the current state $\workstate$ is not a recovery
 state, then the $\instruct{Branch}$ instruction is handled as usual in
 symbolic execution (\cref{alg:branch-normal}).
 
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{handleBranch}
+  \label{fig:aux-handle-branch}}
+\begin{algorithmic}[1]
+
+\Function{handleBranch}{$\workstate, \inst$}
+\If{$\workstate.\isRecovery$} \label{alg:branch-check-recovery}
+  \State $\varphi = \Call{getCondition}{\workstate, \inst}$  \label{alg:branch-get-cond}
+  \State $\dependentState \gets  \Call{getDependentState}{\workstate}$ \label{alg:get-dependent}
+  \If{$\Call{feasible}{\workstate, \varphi}$} \label{alg:branch-feasible-true}
+    \State $\Call{addPathCondition}{\workstate, \varphi}$ \label{alg:add-pc-true-recS}
+    \State $\Call{addPathCondition}{\dependentState, \varphi}$ \label{alg:add-pc-true-depS}
+  \EndIf
+  \If{$\Call{feasible}{\workstate, \neg \varphi}$} \label{alg:branch-feasible-false}
+    \State $\workstate' \gets \Call{fork}{\workstate}$ \label{alg:branch-fork-false1}
+    \State $\dependentState' \gets \Call{fork}{\dependentState}$ \label{alg:branch-fork-false2}
+    \State $\Call{addPathCondition}{\workstate', \neg \varphi}$ \label{alg:add-pc-false-recS}
+    \State $\Call{addPathCondition}{\dependentState', \neg \varphi}$ \label{alg:add-pc-false-depS}
+    \State $\worklist \gets \worklist \cup \{\workstate', \dependentState'\}$ \label{alg:push-both}
+  \EndIf
+\Else
+  \State \Call{executeBranch}{$\workstate$}  \label{alg:branch-normal}
+\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
 \subsection{\text{Handling \textit{Store} Instructions}}
-A $\instruct{Store}$ instruction is handled
-at lines~\ref{alg:casestore-begin}--\ref{alg:casestore-end}.
+A $\instruct{Store}$ instruction is handled at~\Cref{fig:aux-handle-store}.
 The algorithm executes the $\instruct{Store}$ instruction on the
 current state in two steps.
 First, the symbolic state $\workstate$ is updated as usual in symbolic execution (\cref{alg:store-normal}).
@@ -220,19 +323,58 @@ is no longer relevant (\cref{alg:record-overwrite}).
 Note that at this point the dependent state is not resumed,
 even if it was updated with a written value.
 
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{handleStore}
+  \label{fig:aux-handle-store}}
+\begin{algorithmic}[1]
+
+\Function{handleStore}{$\workstate, \inst$}
+\State $\addr \gets \Call{getStoreAddress}{\workstate, \inst}$
+\State $\Call{executeStore}{\workstate,\addr}$ \label{alg:store-normal}
+\If{$\workstate.\isRecovery$} \label{alg:store-check-recovery}
+  \State $\dependentState \gets \Call{getDependentState}{\workstate}$
+  \State \Call{executeStore}{$\dependentState, \addr$} \label{alg:store-udpate-dep-states}
+\Else
+  \State $\workstate.\owset \gets \workstate.\owset \cup \{\addr\}$ \label{alg:record-overwrite}
+\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
+
 \subsection{\text{Handling \textit{Exit} Instructions}}
-A $\instruct{Exit}$ instruction is handled
-at lines~\ref{alg:caseexit-begin}--\ref{alg:caseexit-end}.
+A $\instruct{Exit}$ instruction is handled at~\Cref{fig:aux-handle-exit}.
 The algorithm checks whether the current state $\workstate$ is a
 recovery state. If $\workstate$ is a recovery state \emph{and} the
 $\instruct{Exit}$ instruction is invoked inside the skipped function,
 then the recovery is terminated and the instruction is handled as
-illustrated by step \step{7}{} in \Cref{fig:simple} (see
-\S\ref{chapter:overview}): Specifically, the recovery state itself if
-discarded (\cref{alg:exit-terminate-recovery}) and the dependent state
-is resumed \cref{alg:exit-resume}. Otherwise, the $\instruct{Exit}$
-instruction is handled as usual in symbolic execution
-(\cref{alg:exit-normal}).
+illustrated by step \step{7}{} in \Cref{fig:simple}.
+Specifically, the recovery state itself if discarded (\cref{alg:exit-terminate-recovery})
+and the dependent state is resumed \cref{alg:exit-resume}.
+Otherwise, the $\instruct{Exit}$ instruction is handled as usual in symbolic execution (\cref{alg:exit-normal}).
+Note that the $\instruct{Exit}$ instruction which we discuss here
+is not a terminating instruction (like \textit{exit()} in \textit{libc}),
+but rather the last instruction to be executed by a state.
+For a nomal state, the $\instruct{Exit}$ instruction is the last instruction of the \code{main} function
+and for a recovery state it is the last instruction of the skipped function.
+
+\begin{algorithm}
+  \caption{Auxiliary procedure: \textsc{handleExit}
+  \label{fig:aux-handle-exit}}
+\begin{algorithmic}[1]
+
+\Function{handleExit}{$\workstate, \inst$}
+\If{$\workstate.\isRecovery$} \label{alg:exit-check-recovery}
+  \State \Call{terminate}{$\recoveryState$} \label{alg:exit-terminate-recovery}
+  \State $\dependentState \gets  \Call{getDependentState}{\workstate}$ \label{alg:exit-extract-dependent}
+  \State \Call{resume}{$\dependentState$} \label{alg:exit-resume}
+  \State $\worklist \gets  \worklist \cup \{\dependentState\}$
+\Else
+  \State \Call{executeExit}{$\workstate$}  \label{alg:exit-normal}
+  \label{alg:push-worklist-exit}
+\EndIf
+\EndFunction
+\end{algorithmic}
+\end{algorithm}
 
 \input{cse-alg}
 
