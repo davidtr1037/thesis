@@ -238,13 +238,6 @@
 %% according to SGS guidelines.
 
 \input{abstract}
-
-\cleardoublepage
-
-\begin{acknowledgements}
-\input{acknowledgements}
-\end{acknowledgements}
-
 \cleardoublepage
 
 %% This generates the Table of Contents (on a separate page).
@@ -275,19 +268,13 @@
 %% clearpage before and after every file.
 %%
 
-
 \input{introduction}
 \input{overview}
 \input{design}
 \input{implementation}
 \input{experiments}
-%% Extensions to the paper here
-% Related work and conclusion
 \input{related}
 \input{conclusion}
-%\appendix
-%\input{contracts-verbatim}
-%\input{notes-at-the-end}
 
 %% This adds a line for the Bibliography in the Table of Contents.
 \addcontentsline{toc}{chapter}{Bibliography}
@@ -297,28 +284,8 @@
 %% ***   Set the bibliography file.   ***
 \bibliography{bib_files/cadar-macros,bib_files/cadar,bib_files/cadar-crossrefs,bib_files/cse}
 
-%%\input{etl/states/proofs.tex}
-%\input{appendices/logicsummary.tex}
-%\chapter{Additional Proofs}\label{Ch:Proofs}
-%\input{appendices/etl_traces_proofs.tex}
-%\input{appendices/etl_states_proofs.tex}
-%\includefrom*{appendices/}{etl_states_appendices}
-
-
-%\includefrom*{qnf/}{qnf_installation}
-
-
-%% ***   NOTE   ***
-%% If you don't use bibliography files, comment out the previous line
-%% and use \begin{thebibliography}...\end{thebibliography}.  (In that
-%% case, you should probably put the bibliography in a separate file
-%% and `\include' or `\input' it here).
-
-%\printindex OS
-
 %\appendix
 %\include{appendix}
-
 
 \end{document}
 
