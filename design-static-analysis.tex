@@ -28,13 +28,11 @@ The points-to graph, which is computed once for every program,
 conservatively represents all the possible points-to relation in any
 possible program execution. 
 
-\begin{figure} 
+\begin{figure}
 \centering
   \begin{minipage}{7cm}
-  %\subfloat[]{
     \lstinputlisting{code/static-analysis.c}
     \label{fig:static-analysis}
-  %}
   \end{minipage}
   \caption{Allocation sites in pointer analysis}
   \label{fig:simple}
@@ -51,7 +49,7 @@ the local variable at line~\ref{line:pa_p_as} and the \textit{offset} 0.
 Similarly, the allocation site pointed by $\code{p->y}$ is represented by
 the local variable at line~\ref{line:pa_p_as} and the \textit{offset} 4.
 
-\begin{figure*} 
+\begin{figure*}
   \centering
   \subfloat[]{
     \lstinputlisting[linewidth=.4\textwidth]{code/static-analysis-structs.c}
@@ -68,7 +66,7 @@ the analysis treats $\code{tokens[0]}$ and $\code{tokens[1]}$ as the same memory
 As a result, the points-to set of the memory location at line~\ref{line:pa_token}
 includes the allocation sites of both the string \textit{"a"} and the string \textit{"b"}.
 
-\begin{figure*} 
+\begin{figure*}
   \centering
   \subfloat[]{
     \lstinputlisting[linewidth=.4\textwidth]{code/static-analysis-arrays.c}
