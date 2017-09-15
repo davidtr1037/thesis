@@ -42,13 +42,13 @@ solving optimizations that can help reduce constraint solving
 cost~\cite{exe,cute,constraint-opt:cstva11,memoized:symex,
   green,greentrie,recal,klee-multisolver,klee-array}.
 
-Path explosion represents the other big challenge facing symbolic
-execution, and the main focus of this paper.  Path explosion refers to
-the challenge of navigating the huge number of paths in real programs,
-which is usually at least exponential in the number of static branches
-in the code. The common mechanism employed by symbolic executors to
-deal with this problem is the use of search heuristics to prioritize
-path exploration. One particularly effective heuristic focuses on
+Path explosion represents the other big challenge facing symbolic execution,
+and the main focus of this thesis.
+Path explosion refers to the challenge of navigating the huge number of paths in real programs,
+which is usually at least exponential in the number of static branches in the code.
+The common mechanism employed by symbolic executors to
+deal with this problem is the use of search heuristics to prioritize path exploration.
+One particularly effective heuristic focuses on
 achieving high statement and branch coverage by guiding the
 exploration towards the path closest to uncovered
 instructions~\cite{exe,klee,sen:concolicheuristics,fitsymex:dsn09}.
@@ -123,7 +123,7 @@ corresponding ASN.1 representation, such as \texttt{\_asn1\_append\_value}.
 Therefore, we could have reached the bug even if we had \emph{skipped}
 the irrelevant functions that build the AST.
 
-In this paper, we propose a novel form of symbolic execution called
+In this thesis, we propose a novel form of symbolic execution called
 \emph{chopped symbolic execution} that provides the ability to specify
 parts of the code to exclude during the analysis, thus enabling
 symbolic execution to focus on significant paths only. The skipped
@@ -159,20 +159,8 @@ In summary, in this thesis we make the following contributions:
   effectively improve upon standard symbolic execution in both cases.
 \end{enumerate}
 
-%This paper is organized as follows. Section~\ref{sec:overview} gives a
-%high-level overview of chopped symbolic execution, and
-%Section~\Cref{sec:design} presents our technique in detail.
-%Section~\ref{sec:implementation} briefly discusses our implementation
-%inside the KLEE symbolic execution
-%engine. Section~\ref{sec:evaluation} presents the experimental
-%evaluation of our technique, and in particular it shows that chopped
-%symbolic execution can overcome the limitations of state-of-the-art
-%symbolic executors. Section~\ref{sec:related} surveys the main
-%approaches related to this work. Section~\ref{sec:conclusion}
-%summarizes the contributions of the paper and describes ongoing
-%research work.
 
 %%% Local Variables:
 %%% mode: latex
-%%% TeX-master: "paper"
+%%% TeX-master: "thesis"
 %%% End:
