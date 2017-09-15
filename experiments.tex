@@ -112,8 +112,8 @@ triggers the vulnerability.
 As can be seen, \toolname outperforms KLEE on all but one case study
 both in terms of number of failures reproduced and performance,
 regardless of the search heuristic applied. Overall, KLEE reproduces
-four failures, CVE-2014-3467$^1$, CVE-2014-3467$^2$, CVE-2015-2806 and
-CVE-2015-3622, and only failure CVE-2014-3467$^1$ can be reproduced
+four failures, CVE-2014-3467$_1$, CVE-2014-3467$_2$, CVE-2015-2806 and
+CVE-2015-3622, and only failure CVE-2014-3467$_1$ can be reproduced
 with all search heuristics. This latter case seems to be relatively
 easy to identify, since KLEE requires only a few seconds. On the other
 cases, KLEE requires between 1 and 20 hours. The problem of path
@@ -126,7 +126,7 @@ a test case to reproduce each failure in less than 20 minutes, and
 often much faster. Overall, for the vulnerabilities that KLEE can also
 reproduce, CHASER can significantly beat KLEE in terms of performance
 by at least an order of magnitude, with the only exception of
-CVE-2014-3467$^1$ where \toolname can be slowed by the cost of static
+CVE-2014-3467$_1$ where \toolname can be slowed by the cost of static
 analyses.
 
 Table~\ref{tab:vulnerability-table-chaser} summarizes the detailed
@@ -154,7 +154,7 @@ little as one minute.
 
 Table~\ref{tab:vulnerability-table-chaser} also shows that the benefit
 of slicing the skipped functions depends on the case study. For
-example, for the CVE-2014-3467$^3$ vulnerability, \toolname is on
+example, for the CVE-2014-3467$_3$ vulnerability, \toolname is on
 average 70\% faster when slicing the skipped functions. Conversely,
 \toolname performs the best without slicing in CVE-2012-1569. A
 plausible explanation is that the additional analyses required for
