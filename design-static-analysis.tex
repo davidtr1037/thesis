@@ -29,13 +29,12 @@ conservatively represents all the possible points-to relation in any
 possible program execution. 
 
 \begin{figure}
-\centering
-  \begin{minipage}{7cm}
+  \captionsetup[subfloat]{labelformat=empty}
+  \subfloat[]{
     \lstinputlisting{code/static-analysis.c}
     \label{fig:static-analysis}
-  \end{minipage}
+  }
   \caption{Allocation sites in pointer analysis}
-  \label{fig:simple}
 \end{figure}
 
 \subsubsection{Structs}
@@ -49,15 +48,14 @@ the local variable at line~\ref{line:pa_p_as} and the \textit{offset} 0.
 Similarly, the allocation site pointed by $\code{p->y}$ is represented by
 the local variable at line~\ref{line:pa_p_as} and the \textit{offset} 4.
 
-\begin{figure*}
-  \centering
+\begin{figure}
+  \captionsetup[subfloat]{labelformat=empty}
   \subfloat[]{
     \lstinputlisting[linewidth=.4\textwidth]{code/static-analysis-structs.c}
     \label{fig:static-analysis-structs}
   }
   \caption{Allocation sites of structs}
-  \label{fig:simple-structs}
-\end{figure*}
+\end{figure}
 
 \subsubsection{Arrays}
 Unsurprisingly, arrays are treated in a field-insensitive way (or index-insensitive way).
@@ -66,15 +64,14 @@ the analysis treats $\code{tokens[0]}$ and $\code{tokens[1]}$ as the same memory
 As a result, the points-to set of the memory location at line~\ref{line:pa_token}
 includes the allocation sites of both the string \textit{"a"} and the string \textit{"b"}.
 
-\begin{figure*}
-  \centering
+\begin{figure}
+  \captionsetup[subfloat]{labelformat=empty}
   \subfloat[]{
     \lstinputlisting[linewidth=.4\textwidth]{code/static-analysis-arrays.c}
     \label{fig:static-analysis-arrays}
   }
-  \caption{Allocation sites of arrays}
-  \label{fig:simple-arrays}
-\end{figure*}
+  \caption{Allocation sites of structs}
+\end{figure}
 
 \subsection{Mod-Ref Analysis}
 Using the points-to graph, we use a
@@ -89,25 +86,6 @@ we compute for each \textit{load} instruction whose operand may be modified by a
 the set of allocation sites which are pointed by this operand and may be modified by a skipped function.
 We will discuss it in more details in section~\ref{section:main-algorithm}.
 
-% TODO: move the main algorithm section
-%During the chopped symbolic execution, we instrument the symbolic
-%state to record the allocation site of every memory location. This
-%instrumentation, together with the program points-to graph, allows
-%\textsc{mayMod} to determine whether a skipped function may write to a
-%given address. Recall that the pointer analysis is flow-insensitive,
-%and thus it might record that a skipped function might modify a
-%location which is updated later on in the symbolic execution.  More
-%specifically, a $\instruct{load}$ instruction from address $\addr$ is
-%\emph{dependent on an invocation of a skipped function} if and only
-%if: (1)~$\addr$ is among the locations that \textit{may} be modified
-%by the skipped function (according to the may-mod analysis), and
-%(2)~no stores to that location happened between the skipped invocation
-%function and the load. In particular, when the second condition
-%doesn't hold, no recovery is needed as the stores performed by the
-%skipped function are irrelevant. $\Call{mayMod}$ utilizes the
-%information gathered during the symbolic execution regarding
-%overwritten locations to refine on-the-fly the detection of the
-%\emph{relevant} side effects of skipped functions.
 
 %%% Local Variables:
 %%% mode: latex
