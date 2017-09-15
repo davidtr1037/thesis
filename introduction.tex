@@ -120,12 +120,12 @@ int extract_octet(asn_t asn, char *str, int str_len) {
   }                             /*@ \label{line:loop_end} @*/
   return SUCCESS;
 }
-\end{lstlisting}\vspace{-3mm}
+\end{lstlisting}
 \caption{A simplified excerpt from the \texttt{extract\_octet} routine
   in \texttt{libtasn1}. The invocation of \texttt{get\_length()} in
   line~\ref{line:get_length} leads to a heap overflow because
   \texttt{str\_len} has not been decremented before the call.}
-\label{fig:intro-example}\vspace{-5mm}
+\label{fig:intro-example}
 \end{figure}
 
 \section{Our Approach}
