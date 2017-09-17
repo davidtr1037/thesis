@@ -46,7 +46,7 @@ The \textit{Symbiotic}~\cite{slaby2013symbiotic} tool uses static slicing for
 detecting bugs described by state machines,
 by first slicing the program and then executing it symbolically.
 Although the usage of slicing here is not the same as in our tool,
-slicing the program ahead is likely to be less efficient.
+the approach of slicing the program ahead without any a priori information is likely to be less efficient.
 If the side effects of a function are used only in some subset of the paths,
 then slicing the program ahead will not be effecient,
 as the static slicer consideres all the execution paths of the program.
@@ -54,6 +54,26 @@ In our tool, the lazy resolving of dependencies enables us to perform the slicin
 only when the side effects are needed in a particular path in the program.
 This way, the function is entirely ignored on paths which does not depend on it's side effects
 and sliced on the other ones.
+
+The \textit{Latset}~\cite{majumdar2007latest} tool uses lazy expansion for test input generation.
+It first explores an abstration of the tested function,
+by replacing each function call with an unconstrained input.
+Then it tries to expand the abstrat path to a feasible path
+by exapnding the called functions and finding concrete executions in them
+which are consistent with the abstract path.
+Introducing symbolic vales as a replacement for a function call
+is not efficient when the values replace pointers,
+as symbolic pointers are hard to handle in symbolic execution.
+While dealing with function side effects,
+our tool does not introduce additional symbolic values,
+but rather recovers the missing values by concretley executing the relevant skipped functions.
+Another major difference between the approaches is the way in which
+the skipped function calls are expanded.
+In \textit{Latest}, the whole path is re-executed in order to make sure that the
+localy expanded paths are consistent with the abstract path.
+Our tool executes only the skipped functions
+and uses the concepct of \textit{guiding constraints} to ensure the consistency.
+
 
 %%% Local Variables:
 %%% mode: latex
