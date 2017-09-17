@@ -14,9 +14,9 @@ specifying the list of functions to skip along with specific call
 sites via command-line switches.
 
 \section{Static Analysis}
-Our tool combines static analysis---in
-particular mod-ref analysis and slicing---along with symbolic
-execution. Since KLEE operates on LLVM bitcode, we rely on libraries
+Our tool combines static analysis, in particular mod-ref analysis and slicing
+along with symbolic execution.
+Since KLEE operates on LLVM bitcode, we rely on libraries
 that statically analyze LLVM bitcode.
 In particular, we implemented a code base for static analyses that exposes APIs to KLEE, so new or
 better static analyses can be integrated in \toolname with ease.
@@ -26,21 +26,21 @@ We compute \textit{mod-ref analysis} by using the pointer analysis
 provided by SVF~\cite{sui2016svf}. In particular, we rely on a
 flow-insensitive and context-insensitive pointer analysis based on the
 Andersen algorithm~\cite{andersen:pointeranalysis}.
-Based on the pointer analyses results,
+Based on the pointer analysis results,
 we compute an approximation of the control flow graph
 which is used while computing the side effects of a given function.
 The \textit{modifies}-set of a function $f$ is computed
 by collecting the points-to information of all the $store$ instructions of the functions which
 are reachable from $f$, according the our approximated control flow graph.
 As for the \textit{ref}-set of $f$, we first identify all the call sites of $f$
-and the collect the points-to information from all the $load$ instructions which are reachable
-from these call sites (again, according the the approximated control flow graph).
+and then collect the points-to information from all the $load$ instructions which are reachable
+from these call sites (again, based on the approximated control flow graph).
 The side effects of $f$ are given by the intersection of the \textit{modifies}-set and the \textit{ref}-set.
 
 \subsection{Static Slicing}
 We compute static backward slicing using the DG static slicer~\cite{dg}.
 A static slicing criterion is given by a line and a set of variables.
-In DG, the slicing criterion is can expressed by placing a call site with parameters.
+In DG, the slicing criterion is expressed by placing a call site with parameters.
 The call site corresponds to the line and the parameters correspond to the variables.
 A \textit{load} instruction which dependends on the side effects of a skipped function
 is associated with the \textit{store} instructions which may modify the relevant memory location.
@@ -61,7 +61,7 @@ A user can specifiy the functions for inlining via a command line option.
 
 \subsection{Handling Non Void Functions}
 If all the skipped funtions would have no return value,
-the we were able to run the mod-ref analysis by inspecting only \textit{load} and \textit{store} instructions.
+then we were able to run the mod-ref analysis by inspecting only \textit{load} and \textit{store} instructions.
 Unfortunately, that is not the situation in practice.
 In order to handle this, we perform a reduction from a returning function to a non-returning function.
 Suppose that we have the following returning function:
@@ -71,7 +71,7 @@ int f(int x, int y) {
 }
 \end{lstlisting}
 \label{fig:ret2void-original}
-We create a wrapper non-returning function $wf$ as follows:
+We create a non-returning wrapper function $wf$ as follows:
 \begin{lstlisting}[linewidth=.4\textwidth,numbers=none]
 void wf(int *result, int x, int y) {
     *result = f(x, y);
