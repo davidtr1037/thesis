@@ -41,9 +41,19 @@ benefit of both.
 
 Chopped symbolic execution makes use of program slicing in order to
 explore only the relevant parts of code through the skipped functions.
-Program slicing has been explored in symbolic execution before, \eg in
-the context of patch testing~\cite{babic11}.
-
+Program slicing has been explored in the context of symbolic execution before ~\cite{babic11,slaby2013symbiotic}.
+The \textit{Symbiotic}~\cite{slaby2013symbiotic} tool uses static slicing for
+detecting bugs described by state machines,
+by first slicing the program and then executing it symbolically.
+Although the usage of slicing here is not the same as in our tool,
+slicing the program ahead is likely to be less efficient.
+If the side effects of a function are used only in some subset of the paths,
+then slicing the program ahead will not be effecient,
+as the static slicer consideres all the execution paths of the program.
+In our tool, the lazy resolving of dependencies enables us to perform the slicing on demand,
+only when the side effects are needed in a particular path in the program.
+This way, the function is entirely ignored on paths which does not depend on it's side effects
+and sliced on the other ones.
 
 %%% Local Variables:
 %%% mode: latex
