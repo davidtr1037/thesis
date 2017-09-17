@@ -6,8 +6,14 @@ In some cases, we need to create several recovery states during a
 chopped symbolic execution with a single skipped function.
 For example, consider the following code fragment:
 
-\lstinputlisting[linewidth=.4\textwidth,numbers=none]{code/multiple-recovery-states.c}
-\label{fig:ret2void-original-f}
+\begin{figure}
+  \captionsetup[subfloat]{labelformat=empty}
+  \subfloat[]{
+    \lstinputlisting[linewidth=.4\textwidth,numbers=none]{code/multiple-recovery-states.c}
+  }
+  \caption{Allocation sites in pointer analysis}
+  \label{fig:multiple-recovery-states}
+\end{figure}
 
 In this example, we have two dependent loads:
 one which reads from $\code{p->x}$ and another which reads from $\code{p->y}$.
@@ -19,7 +25,7 @@ would be infeasible. To avoid this undesirable situation, when a
 recovery state terminates, it adds the new constraints accumulated in
 its path condition to the \textit{guiding constraints} of its dependent state. The added
 constraints are then used in subsequent recovery states. In our
-example in Figure~\ref{fig:simple}, the constraint $k > 0$ is
+example in Figure~\ref{fig:multiple-recovery-states}, the constraint $k > 0$ is
 propagated from the first recovery state to the first dependent state,
 thus ensuring that the symbolic execution of the second recovery state
 does not follow an infeasible path.
