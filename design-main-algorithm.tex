@@ -54,7 +54,7 @@ The next step of the algorithm depends on the instruction type (\cref{alg:switch
   \Function{cse}{$\instate$, $\skipFunctions$}
   \State $\worklist \gets \worklist \cup \{ \instate\}$  \label{alg:seed-worklist}
   \While{$\worklist \neq \emptyset$}                     \label{alg:iterate-worklist}
-    \State $\workstate \gets  \Call{selectUnsuspended}{\worklist}$ \label{alg:pop-worklist}
+    \State $\workstate \gets  \Call{selectState}{\worklist}$ \label{alg:pop-worklist}
     \State $\inst \gets  \Call{instruction}{\workstate}$ \label{alg:get-switch-inst}
 
     \Switch{$\inst$} \label{alg:switch}
@@ -89,8 +89,7 @@ $\workstate$ and advances the program counter in $\workstate$
 without executing the skipped function (\cref{alg:take-snapshot}).
 The newly created $\snapshot$ state is added to the end of its list 
 of \emph{skipped invocations} (\cref{alg:record-snapshot}).
-A skipped invocation is represented
-as a triple $(f,\snapshot)$ composed of the name of a skipped
+A skipped invocation is represented as a touple $(f,\snapshot)$ composed of the name of a skipped
 function $f$ and a $snapshot$ of the symbolic state at the time $f$ was skipped.
 If at some point we will need to recover some of the side effects
 of the skipped function, the recovery state will be created
@@ -109,7 +108,7 @@ standard handling of commands by symbolic execution.
 \State $f \gets  \Call{targetFunction}{\workstate, \inst}$ \label{alg:call-find-target}
 \If{$f \in \skipFunctions$}
   \State $\snapshot \gets \Call{createSnapshot}{\workstate}$ \label{alg:take-snapshot}
-  \State $\workstate.\skipped \gets \workstate.\skipped + (f,\snapshot)$ \label{alg:record-snapshot}
+  \State $\workstate.\skippedlist \gets \workstate.\skippedlist + (f,\snapshot)$ \label{alg:record-snapshot}
 \Else
   \State $\Call{executeCall}{\workstate}$ \label{alg:call-normal}
 \EndIf
@@ -119,7 +118,7 @@ standard handling of commands by symbolic execution.
 
 \subsection{\text{Handling \textit{Load} Instructions}}
 A $\instruct{Load}$ instruction is handled at~{fig:aux-handle-load}.
-The algorithm calls $\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$,
+The algorithm calls $\Call{mayMod}{\workstate,\workstate.\skippedlist,\addr}$,
 as shown in \Cref{fig:aux-may-mod}
 to determine whether the address from
 which a value is read ($\addr$) might have been modified by one of the
@@ -132,7 +131,7 @@ skipped functions on the path followed by the current state $\workstate$.
 
 \Function{handleLoad}{$\workstate, \inst$}
 \State $\addr \gets \Call{getLoadAddress}{\workstate, \inst}$
-\If{$\Call{mayMod}{\workstate,\workstate.\skipped,\addr}$}
+\If{$\Call{mayMod}{\workstate,\workstate.\skippedlist,\addr}$}
   %\TODO: Explain that this is a simplification and recovery states are maintained in a pool
   \State $\Call{createRecoveryState}{\workstate,\addr}$ \label{alg:call-recover}
 \Else
@@ -144,9 +143,9 @@ skipped functions on the path followed by the current state $\workstate$.
 
 The auxiliary function $\textsc{mayMod}$
 receives as parameters a symbolic state $\workstate$, a list of
-skipped invocations $\funclist$, and an address $\addr$ which is the
+skipped invocations $\skippedlist$, and an address $\addr$ which is the
 target of a $\instruct{Load}$ instruction, and determines whether one
-of the skipped function in $\funclist$ may store a value in $\addr$.
+of the skipped function in $\skippedlist$ may store a value in $\addr$.
 As was described in \Cref{section:static-analysis},
 a \textit{load} instruction is associated with the allocation sites to
 which it may point and which may be modified by a skipped function.
@@ -213,8 +212,8 @@ Finaly, the recovery state $\recoveryState$ is pushed to the worklist (\cref{alg
   \label{fig:aux-may-mod}}
 \begin{algorithmic}[1]
 
-\Function{mayMod}{$\workstate, \funclist, \addr$}
-  \ForEach{$(f,\snapshot) \in \funclist$}
+\Function{mayMod}{$\workstate, \skippedlist, \addr$}
+  \ForEach{$(f,\snapshot) \in \skippedlist$}
     \If{$\Call{allocSite}{\workstate,\addr} \in \Call{modSet}{f}$} \label{alg:maymod-static}
       \If{$\addr \not \in \workstate.\owset$} \label{alg:maymod-dynamic}
          \State \Return{$\mathit{true}$}
@@ -233,7 +232,7 @@ Finaly, the recovery state $\recoveryState$ is pushed to the worklist (\cref{alg
 \begin{algorithmic}[1]
 
 \Function{createRecoveryState}{$\workstate, \addr$}
-  \ForEach{$(f,\snapshot) \in \workstate.\skipped$} \label{alg:recover-foreach}
+  \ForEach{$(f,\snapshot) \in \workstate.\skippedlist$} \label{alg:recover-foreach}
     \If{$\Call{mayMod}{\workstate, (f,\snapshot) ,\addr}$} \label{alg:recover-if-found}
        \State $\dependentState \gets \workstate$ \label{alg:recover-gen-depS}
        \State $\Call{suspend}{\dependentState}$ \label{alg:recover-suspend}
