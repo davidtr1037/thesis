@@ -8,10 +8,9 @@ We perform a whole program flow-insensitive, context-insensitive, and field-sens
 points-to analysis~\cite{Hind:Paste2001, Smaragdakis:FTPL2015} which
 determines, in a conservative way, the memory location each pointer
 variable may point-to. In this analysis, memory locations are
-conservatively abstracted using their \emph{allocation sites}: Every
-definition of a local or a global variable is considered to be an
-allocation site, as well as every program point in which memory is
-allocated.
+conservatively abstracted using their \emph{allocation sites}.
+Every definition of a local or a global variable is considered to be an
+allocation site, as well as every program point in which memory is allocated.
 For example, in the program from figure~\ref{fig:static-analysis},
 all the memory objects which are allocated at line~\ref{line:object_as}
 are represnted by the same allocation site $\mathit{AS_1}$ at line~\ref{line:object_as}
