@@ -76,8 +76,8 @@ One way to filter such incompatible paths would be to execute all
 possible paths thorough $\code{f}$ during recovery, and later filter
 the ones that are incompatible with the dependent state. However, this
 would potentially lead to the exploration of a large number of
-infeasible paths. We thus designed a more efficient solution: Each
-state maintains a list of \textit{guiding constraints}, which are
+infeasible paths. We thus designed a more efficient solution:
+each state maintains a list of \textit{guiding constraints}, which are
 those constraints added since the call to the skipped function. In our
 example, the guiding constraints for the dependent state are
 $j>0$. Before we execute a recovery state, we add these
@@ -95,7 +95,7 @@ explosion, and reduce the cost of constraint solving, we aim to only
 execute the paths that could influence the dependent load. We
 accomplish this by statically \emph{slicing}~\cite{Weiser:ICSE1981,
   Tip95asurvey, BinkleyH04, Xu:Slicing2005} the function $\code{f}$
-with respect to the store instructions that write to the memory
+with respect to the store instructions which write to the memory
 location read by the dependent load, that is the side effects
 observable from the dependent load. Note that function $\code{f}$
 could call other functions, so the slicing is done for all these
