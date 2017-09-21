@@ -113,6 +113,33 @@ us to be search-heuristic agnostic, meaning that our prioritization
 strategy is compatible and can be combined with all present and future
 search heuristics of KLEE.
 
+\section{Usage}
+Since \toolname is an extension of KLEE it is invoked similarly to KLEE.
+For example, if we want to skip function \textit{f}, then it can be done by invoking the following command line:
+\begin{lstlisting}[language=bash,linewidth=.4\textwidth,numbers=none]
+klee -libc=uclibc -search=dfs -skip-functions=f <bitcode_file>
+\end{lstlisting}
+We now give more details regarding the various command line options.
+
+\subsection{Skipping Functions}
+A list of skipped functions can be specified using the \textit{-skip-functions} switch:
+\begin{lstlisting}[language=bash,linewidth=.4\textwidth,numbers=none]
+-skip-functions=<function1>[line1/line2/...],<function2>[line3/line4/...],...
+\end{lstlisting}
+As we can see, one can choose to skip function invocations at specific lines.
+
+\subsection{Inlining Functions}
+Functions can be inlined using the \textit{-inline} switch:
+\begin{lstlisting}[language=bash,linewidth=.4\textwidth,numbers=none]
+-inline=<function1>,<function2>,...
+\end{lstlisting}
+
+\subsection{Search Heuristics}
+The chopping-aware search heuristic can be applied using the \textit{-split-search} switch:
+\begin{lstlisting}[language=bash,linewidth=.4\textwidth,numbers=none]
+klee -libc=uclibc -search=dfs -split-search -skip-functions=f <bitcode_file>
+\end{lstlisting}
+
 \section{Limitations}
 The current main limitation of \toolname is
 the handling of symbolic addresses. Handling a symbolic address in
