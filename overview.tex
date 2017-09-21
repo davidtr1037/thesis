@@ -23,7 +23,7 @@ function~$\code{f}$, \ie the memory locations that $\code{f}$ may
 update. 
 We compute the side effects of $\code{f}$ using conservative static
 \emph{pointer analysis}~\cite{andersen:pointeranalysis, Hind:Paste2001, Smaragdakis:FTPL2015} 
-before the symbolic exploration starts, see~\S\ref{chapter:design}.
+before the symbolic exploration starts, see~\Cref{chapter:design}.
 In our example, the side effects of $\code{f}$ are the memory
 locations pointed to by \code{p.x} and \code{p.y}, which are updated
 at lines~\ref{line:px_write} and \ref{line:py_write}, respectively.
