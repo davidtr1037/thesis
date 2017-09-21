@@ -61,7 +61,7 @@ by replacing each function call with an unconstrained input.
 Then it tries to expand the abstrat path to a feasible path
 by exapnding the called functions and finding concrete executions in them
 which are consistent with the abstract path.
-Introducing symbolic vales as a replacement for a function call
+Introducing symbolic values as a replacement for a function call
 is not efficient when the values replace pointers,
 as symbolic pointers are hard to handle in symbolic execution.
 While dealing with function side effects,
@@ -72,7 +72,7 @@ the skipped function calls are expanded.
 In \textit{Latest}, the whole path is re-executed in order to make sure that the
 localy expanded paths are consistent with the abstract path.
 Our tool executes only the skipped functions
-and uses the concepct of \textit{guiding constraints} to ensure the consistency.
+and uses the concepct of \textit{guiding constraints} to ensure consistency.
 
 
 %%% Local Variables:

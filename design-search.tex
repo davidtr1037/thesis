@@ -15,8 +15,8 @@ We propose a \textit{chopping-aware} search heuristic, which attempts
 to optimize the exploration of chopped symbolic execution, while
 aiming to a faster recovery of side effects. The heuristic's behavior
 crucially depends on the current state being executed. Under normal
-conditions---that is while symbolically executing normal states---the
-search heuristic favors the selection of normal states at the next
+conditions, that is while symbolically executing normal states,
+the search heuristic favors the selection of normal states at the next
 steps. The rationale is that we want to favor paths that do not
 require any recovery, thus fostering code exploration.
 

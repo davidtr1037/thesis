@@ -20,7 +20,7 @@ code in Figure~\ref{fig:multiple-skipped-functions}. When the
 execution reaches the dependent load at line~13, we create a recovery
 state for $\code{f}_2$, since $\code{f}_1$ does not modify the field
 $x$.  When the created recovery state reaches the load instruction at
-line~6, it identifies it as a dependent load. Chopped symbolic
+line~\ref{line:dep-load-in-recovery}, it identifies it as a dependent load. Chopped symbolic
 execution then creates another recovery state which executes $f_1$.
 Once the recovery of $f_1$ is terminated, we can continue with the
 recovery of $f_2$.

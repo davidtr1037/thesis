@@ -3,7 +3,7 @@ void f1(struct point *p) {
     p->y = 0;
 }
 void f2(struct point *p) {
-    if (p->y)
+    if (p->y) /*@ \label{line:dep-load-in-recovery} @*/
         p->x = 1;
 }
 void g() {

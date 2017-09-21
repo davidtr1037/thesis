@@ -4,14 +4,14 @@
 \label{Se:MultiRecovery}
 In some cases, we need to create several recovery states during a
 chopped symbolic execution with a single skipped function.
-For example, consider the following code fragment:
+For example, consider the code from \Cref{fig:multiple-recovery-states}.
 
 \begin{figure}
   \captionsetup[subfloat]{labelformat=empty}
   \subfloat[]{
     \lstinputlisting[linewidth=.4\textwidth,numbers=none]{code/multiple-recovery-states.c}
   }
-  \caption{Allocation sites in pointer analysis}
+  \caption{A single skipped function with multiple recovery states}
   \label{fig:multiple-recovery-states}
 \end{figure}
 

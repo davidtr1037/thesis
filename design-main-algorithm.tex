@@ -9,10 +9,10 @@ assignments, assertions, conditional jumps, dynamic memory allocation
 and reclamation, and function calls with call-by-value parameter
 passing.
 Note that in practice, our algorithm operates on LLVM bitcode~\cite{llvm}.
-The function parameters can be of any type: primitives, structs, poitner, \etc
+The function parameters can be of any type: primitives, structs, poitners, \etc
 Without loss of generality, we assume that functions do not have a return value.
 A function with a return value can always be rewritten with an additional parameter 
-that points to the memory location of the return value.
+that points to the memory location of the return value (see~\Cref{chapter:implementation}).
 
 To simplify the explanation, we now
 assume that we may skip at most one function invocation at every
@@ -43,8 +43,8 @@ symbolic state $\workstate$ to explore out of the worklist
 Unconventionally, however, we assume that
 the selected state is not suspended, since a suspended state is ignored by the execution engine
 until it's corresponding recovery state terminates
-and the value of the depended load is recovered (see \S\ref{chapter:overview}).
-At this point, we defer the discussion regarding the search heuristics to \S\ref{Se:Search},
+and the value of the depended load is recovered (see \Cref{chapter:overview}).
+At this point, we defer the discussion regarding the search heuristics to \Cref{Se:Search},
 and assume, for now, that any unsuspended state can be returned.
 The next step of the algorithm depends on the instruction type (\cref{alg:switch}).
 
@@ -117,8 +117,8 @@ standard handling of commands by symbolic execution.
 \end{algorithm}
 
 \subsection{\text{Handling \textit{Load} Instructions}}
-A $\instruct{Load}$ instruction is handled at~{fig:aux-handle-load}.
-The algorithm calls $\Call{mayMod}{\workstate,\workstate.\skippedlist,\addr}$,
+A $\instruct{Load}$ instruction is handled at~\Cref{fig:aux-handle-load}.
+The algorithm calls $\textsc{mayMod}$,
 as shown in \Cref{fig:aux-may-mod}
 to determine whether the address from
 which a value is read ($\addr$) might have been modified by one of the
@@ -143,7 +143,7 @@ skipped functions on the path followed by the current state $\workstate$.
 
 The auxiliary function $\textsc{mayMod}$
 receives as parameters a symbolic state $\workstate$, a list of
-skipped invocations $\skippedlist$, and an address $\addr$ which is the
+skipped invocations $\skippedlist$ and an address $\addr$ which is the
 target of a $\instruct{Load}$ instruction, and determines whether one
 of the skipped function in $\skippedlist$ may store a value in $\addr$.
 As was described in \Cref{section:static-analysis},
@@ -183,9 +183,8 @@ Procedure \textsc{createRecoveryState} is shown in
 \ref{fig:aux-create-recovery-state}. The function handles $\instruct{Load}$
 instructions as illustrated by step \step{2}{} in \Cref{fig:simple}
 (see \S\ref{chapter:overview}):
-It iterates over the list of skipped
-functions (line~\ref{alg:recover-foreach}), and uses
-$\Call{mayMod}{\workstate, f, \addr}$ to determine which of the skipped
+It iterates over the list of skipped functions (line~\ref{alg:recover-foreach}),
+and uses $\textsc{mayMod}$ to determine which of the skipped
 functions $f$ might have written to the address $\addr$. Once it finds
 such a function (\cref{alg:recover-if-found}), the current state
 becomes a dependent state (\cref{alg:recover-gen-depS}) and it is
@@ -240,8 +239,7 @@ Finaly, the recovery state $\recoveryState$ is pushed to the worklist (\cref{alg
        \State $\recoveryState \gets \Call{fork}{\snapshot}$ \label{alg:recover-gen-recS}
        \State $\recoveryState \gets \Call{addPathConditions}{\recoveryState,\gc}$ \label{alg:add-guiding-constraints}
        \State $\recoveryState.\isRecovery \gets \mtrue$ \label{alg:recover-set-is-recS}
-       % TODO: fix the slice call...
-       \State $\Call{slice}{\recoveryState,\addr}$ \label{alg:recover-slice}
+       \State $\Call{slice}{f,\addr}$ \label{alg:recover-slice}
        \State $\recoveryState.dependentState = \dependentState$ \label{alg:set-dependent-state}
        \State $\recoveryState.loadAddr = \addr$ \label{alg:set-load-addr}
        \State $\worklist \gets \worklist \cup \{\recoveryState\}$
@@ -257,8 +255,7 @@ Finaly, the recovery state $\recoveryState$ is pushed to the worklist (\cref{alg
 A $\instruct{Branch}$ instruction is handled at~\Cref{fig:aux-handle-branch}.
 The algorithm checks whether the current state $\workstate$ is a recovery state.
 If so, then the $\instruct{Branch}$ instruction is
-handled as illustrated by steps \step{4}{} and \step{5}{} in
-\Cref{fig:simple} (see \S\ref{chapter:overview}).
+handled as illustrated by steps \step{4}{} and \step{5}{} in \Cref{fig:simple}.
 It first gets from $\workstate$ the (suspended) dependent state $\dependentState$,
 which spawned $\workstate$ as a recovery state (\cref{alg:get-dependent}).
 It then determines the branch condition $\varphi$ (\cref{alg:branch-get-cond}).
@@ -271,7 +268,7 @@ Their path conditions are updated with $\neg \varphi$ (lines~\ref{alg:add-pc-fal
 and both are pushed to the worklist (line~\ref{alg:push-both}).
 
 Since the \textit{guiding constraints} are added to a recovery state at the moment of creation,
-a branch which is feasible in a recovery state is guaranteed to feasible in it's dependent state as well.
+a branch which is feasible in a recovery state is guaranteed to be feasible in it's dependent state as well.
 This means, that whenever we have a fork in a recovery state,
 it is enough to check satisfiability only in the recovery state.
 
@@ -313,7 +310,7 @@ current state in two steps.
 First, the symbolic state $\workstate$ is updated as usual in symbolic execution (\cref{alg:store-normal}).
 Then, if $\workstate$ is a recovery state, then the algorithm
 updates the dependent state with the same written value as in the recovery state
-(as illustrated by step \step{6}{} in \Cref{fig:simple}, see \S\ref{chapter:overview}).
+(as illustrated by step \step{6}{} in \Cref{fig:simple}).
 If $\workstate$ is not a recovery state,
 then it updates it's set of overwritten addresses to record
 that a value was stored in $\addr$ after the skip,
