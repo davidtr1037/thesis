@@ -114,12 +114,12 @@ strategy is compatible and can be combined with all present and future
 search heuristics of KLEE.
 
 \section{Usage}
-Since \toolname is an extension of KLEE it is invoked similarly to KLEE.
-For example, if we want to skip function \textit{f}, then it can be done by invoking the following command line:
+Since \toolname is an extension of KLEE, it is invoked similarly to KLEE.
+For example, if we want to skip the function \textit{f}, then it can be done by invoking the following command line:
 \begin{lstlisting}[language=bash,linewidth=.4\textwidth,numbers=none]
 klee -libc=uclibc -search=dfs -skip-functions=f <bitcode_file>
 \end{lstlisting}
-We now give more details regarding the various command line options.
+We now overview the major command line options which are related to our extension.
 
 \subsection{Skipping Functions}
 A list of skipped functions can be specified using the \textit{-skip-functions} switch:
@@ -139,6 +139,11 @@ The chopping-aware search heuristic can be applied using the \textit{-split-sear
 \begin{lstlisting}[language=bash,linewidth=.4\textwidth,numbers=none]
 klee -libc=uclibc -search=dfs -split-search -skip-functions=f <bitcode_file>
 \end{lstlisting}
+
+\subsection{Debugging}
+Static analysis related debug messages are written to a log file in the KLEE output directory.
+In order to debug the symbolic execution mechanism,
+one can add the \textit{-debug=only} switch, and get some verbose debugging.
 
 \section{Limitations}
 The current main limitation of \toolname is
