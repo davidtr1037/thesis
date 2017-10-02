@@ -23,7 +23,7 @@ function~$\code{f}$, \ie the memory locations that $\code{f}$ may
 update. 
 We compute the side effects of $\code{f}$ using conservative static
 \emph{pointer analysis}~\cite{andersen:pointeranalysis, Hind:Paste2001, Smaragdakis:FTPL2015} 
-before the symbolic exploration starts, see~\Cref{chapter:design}.
+before the symbolic exploration starts (see~\Cref{chapter:design}).
 In our example, the side effects of $\code{f}$ are the memory
 locations pointed to by \code{p.x} and \code{p.y}, which are updated
 at lines~\ref{line:px_write} and \ref{line:py_write}, respectively.
@@ -49,7 +49,7 @@ suspended until the relevant paths in function $\code{f}$ are
 explored, and becomes a \textit{dependent state}. To recover a path,
 we create a new \textit{recovery state} which inherits the snapshot
 state generated before skipping $\code{f}$ at line~\ref{line:call_f}
-and start executing symbolically the function.
+and start executing function $\code{f}$ symbolically.
 
 While symbolic execution is in the recovery state, if the execution
 forks, then the same fork is performed in the dependent state.
