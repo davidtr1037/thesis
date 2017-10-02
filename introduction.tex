@@ -57,25 +57,26 @@ explosion problem, as the following example demonstrates.
 
 \section{Motivating Example.}
 The \texttt{\_asn1\_extract\_der\_octet} function, shown in \Cref{fig:intro-1},
-is taken from the \texttt{libtasn1} library (https://www.gnu.org/software/libtasn1)
+is taken from the \texttt{libtasn1} library~\cite{libtasn1}
 which provides an API for serializing and deserialzing data accroding to the ASN.1 binary protocol.
 The ASN.1 protocol is used in many networking and
 cryptographic applications, such as those handling public key
 certificates and various communication protocols.
 Versions of \texttt{libtasn1} before 4.5 are affected by a heap-overflow 
-vulnerability \footnote{CVE-2015-3622: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3622}
-that could be exploited via a crafted certificate.
+vulnerability \cite{CVE-2015-3622} that could be exploited via a crafted certificate.
 Unfortunately, given a time budget of 24 hours,
 the analysis of the \texttt{\_asn1\_extract\_der\_octet} function using
 the state-of-the-art symbolic execution engine KLEE~\cite{klee} fails
 to identify the vulnerability due to path explosion.
 
+The \texttt{\_asn1\_extract\_der\_octet} function parses an input string \textit{der}
+of length \textit{der\_len} and creates an abstract structure returned as \textit{node}.
 At each loop iteration (lines~\ref{line:loop_begin}--\ref{line:loop_end}),
 the function decodes the current data element with \texttt{asn1\_get\_length} (line~\ref{line:heap_overflow}).
 The function \texttt{asn1\_get\_length} parses the input string and decodes the length of the current data element.
 Then, the execution either recursively iterates over the input string (line~\ref{line:recursion}),
 or invokes \texttt{\_asn1\_append\_value} (line~\ref{line:append}).
-The function \texttt{\_asn1\_append\_value} (see~\Cref{fig:intro-2}) creates the
+The latter (see~\Cref{fig:intro-2}) creates the
 actual node in the Abstract Syntax Tree (AST) by decoding the input
 string given the obtained length. This function scans once more over
 the input string, performs several checks over the selected element,
