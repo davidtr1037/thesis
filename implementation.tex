@@ -59,19 +59,19 @@ The inlining is prefromed only in the functions which are reachable from any ski
 This partial inlining prevents to code from growing too much.
 A user can specifiy the functions for inlining via a command line option.
 
-\subsection{Handling Non Void Functions}
+\subsection{Handling Return Values}
 If all the skipped funtions would have no return value,
 then we were able to run the mod-ref analysis by inspecting only \textit{load} and \textit{store} instructions.
 Unfortunately, that is not the situation in practice.
-In order to handle this, we perform a reduction from a returning function to a non-returning function.
-Suppose that we have the following returning function:
+In order to handle this, we perform a reduction from a function with a return value to one without.
+Suppose that we have the following function:
 \begin{lstlisting}[linewidth=.4\textwidth,numbers=none]
 int f(int x, int y) {
     return x + y;
 }
 \end{lstlisting}
 \label{fig:ret2void-original}
-We create a non-returning wrapper function $wf$ as follows:
+We create a wrapper void function $wf$ as follows:
 \begin{lstlisting}[linewidth=.4\textwidth,numbers=none]
 void wf(int *result, int x, int y) {
     *result = f(x, y);
