@@ -18,20 +18,21 @@ Our tool combines static analysis, in particular mod-ref analysis and slicing
 along with symbolic execution.
 Since KLEE operates on LLVM bitcode, we rely on libraries
 that statically analyze LLVM bitcode.
-In particular, we implemented a code base for static analyses that exposes APIs to KLEE, so new or
-better static analyses can be integrated in \toolname with ease.
+In particular, we implemented a code base for static analyses that exposes APIs to KLEE,
+so other static analyses can be integrated in \toolname with ease.
 
 \subsection{Mod-Ref Analysis}
 We compute \textit{mod-ref analysis} by using the pointer analysis
 provided by SVF~\cite{sui2016svf}. In particular, we rely on a
 flow-insensitive and context-insensitive pointer analysis based on the
 Andersen algorithm~\cite{andersen:pointeranalysis}.
-Based on the pointer analysis results,
-we compute an approximation of the control flow graph
+We use pointer analysis results to
+compute an approximation of the control flow graph
 which is used while computing the side effects of a given function.
 The \textit{modifies}-set of a function $f$ is computed
 by collecting the points-to information of all the $store$ instructions of the functions which
-are reachable from $f$, according the our approximated control flow graph.
+are reachable from $f$, according the our over approximated control flow graph.
+\footnote{The CFG is over approximated due to conservative treatment of function pointers.}
 As for the \textit{ref}-set of $f$, we first identify all the call sites of $f$
 and then collect the points-to information from all the $load$ instructions which are reachable
 from these call sites (again, based on the approximated control flow graph).
