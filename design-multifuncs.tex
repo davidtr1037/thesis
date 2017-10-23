@@ -11,8 +11,8 @@ invocations according to their order along the path, thus ensuring
 that the value stored in $\addr$ at the end of the recovery process is
 indeed the last value written there along the chopped path.
 
-Another issue that we need to address to support multiple skipped
-functions is that a skipped invocation might depend on the side
+Another issue that we need to consider is that
+a skipped invocation might depend on the side
 effects of an earlier skipped functions. When this happens, we apply
 our recovery approach in a recursive manner, and treat the current
 recovery state as a \emph{dependent} state. For example, consider the
