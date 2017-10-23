@@ -179,7 +179,7 @@ If $\textsc{mayMod}$ returns true,
 then the algorithm calls \textsc{createRecoveryState} in order to create a recovery state.
 Otherwise, the $\instruct{Load}$ instruction is handled as usual in symbolic execution (\cref{alg:load-normal}).
 
-Procedure \textsc{createRecoveryState} is shown in
+Function \textsc{createRecoveryState} is shown in
 \ref{fig:aux-create-recovery-state}. The function handles $\instruct{Load}$
 instructions as illustrated by step \step{2}{} in \Cref{fig:simple}
 (see \S\ref{chapter:overview}):
@@ -191,7 +191,7 @@ becomes a dependent state (\cref{alg:recover-gen-depS}) and it is
 immediately suspended (\cref{alg:recover-suspend}). 
 The procedure then creates a \emph{recovery} state $\recoveryState$ by
 forking $\snapshot$.
-The \textit{guiding constraints}, \ie  the path conditions accumulated in $\workstate$
+The \textit{guiding constraints}, \ie the path conditions accumulated in $\workstate$
 since the snapshot state was created (\cref{alg:recover-gen-recS,alg:recover-set-is-recS}),
 are added to the path conditions of the newly created recovery state.
 The algorithm then invokes a static program slicer to remove from the
@@ -308,7 +308,7 @@ A $\instruct{Store}$ instruction is handled at~\Cref{fig:aux-handle-store}.
 The algorithm executes the $\instruct{Store}$ instruction on the
 current state in two steps.
 First, the symbolic state $\workstate$ is updated as usual in symbolic execution (\cref{alg:store-normal}).
-Then, if $\workstate$ is a recovery state, then the algorithm
+Then, if $\workstate$ is a recovery state, the algorithm
 updates the dependent state with the same written value as in the recovery state
 (as illustrated by step \step{6}{} in \Cref{fig:simple}).
 If $\workstate$ is not a recovery state,
@@ -338,13 +338,13 @@ even if it was updated with a written value.
 \end{algorithm}
 
 \subsection{\text{Handling \textit{Exit} Instructions}}
-A $\instruct{Exit}$ instruction is handled at~\Cref{fig:aux-handle-exit}.
+An $\instruct{Exit}$ instruction is handled at~\Cref{fig:aux-handle-exit}.
 The algorithm checks whether the current state $\workstate$ is a
 recovery state. If $\workstate$ is a recovery state \emph{and} the
 $\instruct{Exit}$ instruction is invoked inside the skipped function,
 then the recovery is terminated and the instruction is handled as
 illustrated by step \step{7}{} in \Cref{fig:simple}.
-Specifically, the recovery state itself if discarded (\cref{alg:exit-terminate-recovery})
+Specifically, the recovery state itself is discarded (\cref{alg:exit-terminate-recovery})
 and the dependent state is resumed \cref{alg:exit-resume}.
 Otherwise, the $\instruct{Exit}$ instruction is handled as usual in symbolic execution (\cref{alg:exit-normal}).
 Note that the $\instruct{Exit}$ instruction which we discuss here
