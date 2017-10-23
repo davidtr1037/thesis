@@ -198,8 +198,7 @@ We proceed with the following evaluation process:
   the code under analysis, in particular we focus on statement and
   branch coverage.
 \item We compute the structural coverage obtained with the test suites
-  that KLEE generates using GNU
-  GCov.\footnote{https://gcc.gnu.org/onlinedocs/gcc-4.7.3/gcc/Gcov.html}
+  that KLEE generates using GNU GCov~\cite{gcov}.
 \item We use the coverage information and the call graph to select for
   each program the set of functions to skip based on the coverage
   information. For example, suppose that function $f$ calls function
@@ -232,7 +231,7 @@ analyzing one function that contains complex logic responsible for
 ensuring that the buffer contains enough characters for parsing while
 handling different encodings, such as UTF-8 or UTF-16. Such function
 is invoked at the beginning of program execution, and KLEE got stuck
-into it, not being able to execute any subsequent line of
+in it, not being able to execute any subsequent line of
 code. Conversely, \toolname skipped the expensive invocation and
 continued to explore other parts of the code. Our chopping-aware
 search heuristic also allowed us to recover paths inside the expensive
