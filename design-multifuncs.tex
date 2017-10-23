@@ -6,7 +6,7 @@ So far, we have assumed that every symbolic state has a single skipped
 invocation. When we have multiple invocations that can be skipped, we
 then need to decide which functions to use for recovery and in which
 order, in the case multiple invocations modify the dependent load
-address $\addr$. We solve this issue by executing the skipped
+address $\addr$. We address this issue by executing the skipped
 invocations according to their order along the path, thus ensuring
 that the value stored in $\addr$ at the end of the recovery process is
 indeed the last value written there along the chopped path.
