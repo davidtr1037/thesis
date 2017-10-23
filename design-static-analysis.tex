@@ -79,7 +79,7 @@ in which we find the side effects of every function $f$,
 that the function itself or any function that it may (transitively) invoke, may modify.
 
 In addition to computing the side effects,
-we compute for each \textit{load} instruction whose operand may be modified by a skipped function,
+we compute for each \textit{load} instruction whose operand might point to a location which may be modified by a skipped function,
 the set of allocation sites which are pointed by this operand and may be modified by a skipped function.
 We will discuss it in more details in section~\ref{section:main-algorithm}.
 

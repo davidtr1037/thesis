@@ -8,9 +8,9 @@ on a simple imperative C-like heap-manipulating language with
 assignments, assertions, conditional jumps, dynamic memory allocation
 and reclamation, and function calls with call-by-value parameter
 passing.
-Note that in practice, our algorithm operates on LLVM bitcode~\cite{llvm}.
+(Note that in practice, our algorithm operates on LLVM bitcode~\cite{llvm}.)
 The function parameters can be of any type: primitives, structs, poitners, \etc
-Without loss of generality, we assume that functions do not have a return value.
+Without loss of generality, we assume that functions do not have a return value:
 A function with a return value can always be rewritten with an additional parameter 
 that points to the memory location of the return value (see~\Cref{chapter:implementation}).
 
